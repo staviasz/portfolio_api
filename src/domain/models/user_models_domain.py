@@ -27,6 +27,13 @@ class ImageUpload(BaseModel):
     minetype: str
     body: bytes
 
+    def model_dump(self):
+        return {
+            "filename": self.filename,
+            "minetype": self.minetype,
+            "body": self.body,
+        }
+
 
 class UserModelCreateDomain(BaseModel):
     name: str
@@ -36,6 +43,16 @@ class UserModelCreateDomain(BaseModel):
     contact_description: str
     image_upload: ImageUpload
 
+    def model_dump(self):
+        return {
+            "name": self.name,
+            "email": self.email,
+            "password": self.password,
+            "description": self.description,
+            "contact_description": self.contact_description,
+            "image_upload": self.image_upload.model_dump(),
+        }
+
 
 class UserModelUpdateDomain(BaseModel):
     name: Optional[str]
@@ -43,3 +60,14 @@ class UserModelUpdateDomain(BaseModel):
     password: Optional[str]
     description: Optional[str]
     contact_description: Optional[str]
+    image_upload: Optional[ImageUpload]
+
+    def model_dump(self):
+        return {
+            "name": self.name,
+            "email": self.email,
+            "password": self.password,
+            "description": self.description,
+            "contact_description": self.contact_description,
+            "image_upload": self.image_upload.model_dump(),
+        }

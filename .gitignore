@@ -1,4 +1,4 @@
 .mypy_cache
 /data
-**/__pycache__.py
+**/__pycache__
 /venv

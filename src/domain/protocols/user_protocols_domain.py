@@ -2,6 +2,7 @@ from typing_extensions import Literal, Protocol
 
 from src.domain.models.user_models_domain import (
     UserModelCreateDomain,
+    UserModelDomain,
     UserModelUpdateDomain,
 )
 from src.presentation.types.http_types_presentation import HttpResponse
@@ -11,7 +12,7 @@ class UserDomainProtocol(Protocol):
     async def add_user(self, user: UserModelCreateDomain) -> HttpResponse: ...
 
     async def edit_user(
-        self, user_id: int, user: UserModelUpdateDomain
+        self, user: UserModelDomain, data_user: UserModelUpdateDomain
     ) -> HttpResponse: ...
 
     async def get_user(self, user_id: int) -> HttpResponse: ...
@@ -22,21 +23,26 @@ class UserDomainProtocol(Protocol):
 
     async def execute(
         self,
-        user: UserModelCreateDomain | UserModelUpdateDomain | None = None,
-        user_id: int | None = None,
+        data_user: UserModelCreateDomain | UserModelUpdateDomain | None = None,
+        user: UserModelDomain | None = None,
         method: Literal["POST", "GET", "PUT", "DELETE"] | None = None,
     ) -> HttpResponse:
-        if user and isinstance(user, UserModelCreateDomain):
-            return await self.add_user(user)
+        if data_user and isinstance(data_user, UserModelCreateDomain):
+            return await self.add_user(data_user)
 
-        elif user and isinstance(user, UserModelUpdateDomain) and user_id:
-            return await self.edit_user(user_id, user)
+        elif (
+            data_user
+            and isinstance(data_user, UserModelUpdateDomain)
+            and user
+            and isinstance(user, UserModelDomain)
+        ):
+            return await self.edit_user(user, data_user)
 
-        elif user_id and method == "GET":
-            return await self.get_user(user_id)
+        elif user and method == "GET":
+            return await self.get_user(user.id)
 
-        elif user_id and method == "DELETE":
-            return await self.delete_user(user_id)
+        elif user and method == "DELETE":
+            return await self.delete_user(user.id)
 
         else:
             return await self.get_all_users()
