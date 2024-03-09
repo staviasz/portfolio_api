@@ -36,7 +36,7 @@ class UserUseCase(UserDomainProtocol):
 
             if await self.repository.get_by_email(DeclarativeBase, user.email):
                 return HttpResponse(
-                    status_code=409, body={"Error": "User already exists"}
+                    status_code=409, body={"message": "Email already exists"}
                 )
 
             data["image_url"] = await self.bucket.upload(file=user.image_upload)
@@ -52,27 +52,31 @@ class UserUseCase(UserDomainProtocol):
             return HttpResponse(status_code=500, body={"Error": e})
 
     async def edit_user(
-        self, user: UserModelDomain, data_user: UserModelUpdateDomain
+        self, user: dict, data_user: UserModelUpdateDomain
     ) -> HttpResponse:
         try:
+
             data = {**data_user.model_dump()}
 
             if data_user.password:
                 data["password"] = self.hasher.hash(data_user.password)
 
             if data_user.email:
-                if await self.repository.get_by_email(DeclarativeBase, data_user.email):
+                user_current = await self.repository.get_by_email(
+                    DeclarativeBase, data_user.email
+                )
+                if user_current and user_current["id"] != user["id"]:
                     return HttpResponse(
                         status_code=409, body={"message": "Email already exists"}
                     )
 
             if data_user.image_upload:
                 data["image_url"] = await self.bucket.update_upload(
-                    last_url_file=user.image_url, file=data_user.image_upload
+                    last_url_file=user["image_url"], file=data_user.image_upload
                 )
 
             update_user = await self.repository.update(
-                table_name=DeclarativeBase, data=data, id=user.id
+                table_name=DeclarativeBase, data=data, id=user["id"]
             )
 
             response: UserModelDomain = UserModelDomain(**update_user)
@@ -86,20 +90,17 @@ class UserUseCase(UserDomainProtocol):
         try:
             users = await self.repository.get_all(table_name=DeclarativeBase)
 
-            response = [UserModelDomain(**user.__dict__) for user in users]
+            response = [UserModelDomain(**user).model_dump() for user in users]
 
             return HttpResponse(status_code=200, body=response)
 
         except Exception as e:
             return HttpResponse(status_code=500, body={"Error": e})
 
-    async def get_user(self, user_id: int) -> HttpResponse:
+    async def get_user(self, user: dict) -> HttpResponse:
         try:
-            user = await self.repository.get_by_id_dict(
-                table_name=DeclarativeBase, id=user_id
-            )
-
             response = UserModelDomain(**user)
+            print("data")
 
             return HttpResponse(status_code=200, body=response.model_dump())
 

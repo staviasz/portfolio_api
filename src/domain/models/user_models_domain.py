@@ -24,13 +24,13 @@ class UserModelDomain(BaseModel):
 
 class ImageUpload(BaseModel):
     filename: str
-    minetype: str
+    mimetype: str
     body: bytes
 
     def model_dump(self):
         return {
             "filename": self.filename,
-            "minetype": self.minetype,
+            "mimetype": self.mimetype,
             "body": self.body,
         }
 
