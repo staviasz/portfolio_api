@@ -1,10 +1,14 @@
-from typing_extensions import Literal, Protocol
+from typing_extensions import Literal, Protocol, TypeVar
+
+from pydantic import BaseModel
 
 from src.domain.models.user_models_domain import (
     UserModelCreateDomain,
     UserModelUpdateDomain,
 )
 from src.presentation.types.http_types_presentation import HttpResponse
+
+T = TypeVar("T", bound=BaseModel)
 
 
 class UserDomainProtocol(Protocol):
@@ -22,7 +26,7 @@ class UserDomainProtocol(Protocol):
 
     async def execute(
         self,
-        data_user: UserModelCreateDomain | UserModelUpdateDomain | None = None,
+        data_user: T | None = None,
         user: dict | None = None,
         method: Literal["POST", "GET", "PUT", "DELETE"] | None = None,
     ) -> HttpResponse:

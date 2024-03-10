@@ -3,10 +3,10 @@ from pydantic import BaseModel
 
 
 class HttpRequest(BaseModel):
-    headers: Optional[dict]
-    body: Optional[dict]
-    params: Optional[dict]
-    query: Optional[dict]
+    headers: Optional[dict] = None
+    body: Optional[dict] = None
+    params: Optional[dict] = None
+    query: Optional[dict] = None
 
 
 class HttpResponse(BaseModel):
