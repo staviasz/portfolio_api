@@ -5,9 +5,11 @@ from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
 from alembic import context
-from src.configs.pydantic_env.pydantic_settings_config import PydanticEnv
-from src.configs.repository.repository_client_config import Base
+
+from src.configs.pydantic.pydantic_env_settings_config import PydanticEnv
+from src.configs.repository.client_repository_config import Base
 from src.infra.repository.models import User  # noqa
+
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

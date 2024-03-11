@@ -11,6 +11,17 @@ class UserModelDomain(BaseModel):
     contact_description: str
     image_url: str
 
+    def model_all_dump(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "email": self.email,
+            "password": self.password,
+            "description": self.description,
+            "contact_description": self.contact_description,
+            "image_url": self.image_url,
+        }
+
     def model_dump(self):
         return {
             "id": self.id,
