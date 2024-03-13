@@ -11,6 +11,7 @@ class AwsInfra(AwsProtocolUseCase):
         self.client = client
 
     async def upload(self, folder: str, file: ImageUpload) -> str:
+
         new_filename = self.slug(file.filename)
         self.client.put_object(
             Bucket=PydanticEnv().bucket_name,
@@ -51,4 +52,4 @@ class AwsInfra(AwsProtocolUseCase):
         return f"{format_regex}{int(date.timestamp())}.{ext}"
 
     def create_url(self, folder: str, file_name: str) -> str:
-        return "teste"
+        return f"https://{PydanticEnv().bucket_name}.{PydanticEnv().bucket_endpoint}/{folder}/{file_name}"

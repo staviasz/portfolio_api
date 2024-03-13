@@ -8,7 +8,7 @@ current_dir = os.path.dirname(__file__)
 sqlite_db_file = os.path.abspath(os.path.join(current_dir, "../../../sqlite.db"))
 
 env = PydanticEnv().env
-
+print(PydanticEnv().database_url)
 engine = None
 if env == "dev":
     engine = create_engine(PydanticEnv().database_url)

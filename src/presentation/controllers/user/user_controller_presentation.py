@@ -5,6 +5,7 @@ from src.domain.models.user_models_domain import ImageUpload
 from src.domain.protocols.user_protocols_domain import UserDomainProtocol
 from src.presentation.contracts.controller_contract_presentation import Controller
 from src.presentation.types.http_types_presentation import HttpRequest, HttpResponse
+
 from src.use_case.protocols.pydantic.validation_schema_pydantic_protocol_use_case import (
     ValidationSchemaProtocolUseCase,
 )
@@ -28,15 +29,19 @@ class UserControllerPresentation(Controller, Generic[TSchema]):
         self, request: HttpRequest, files: List[UploadFile]
     ) -> HttpResponse:
         try:
+            method = None
+            user = None
 
-            if not request.headers or not request.body:
+            if isinstance(request.headers, dict):
+                method = request.headers["method"]
+                user = request.headers["user"]
+
+            body = request.body
+
+            if not body:
                 return HttpResponse(
                     status_code=400, body={"message": "Request not found"}
                 )
-
-            method = request.headers["method"]
-            user = request.headers["user"]
-            body = request.body
 
             file = files[0]
             image_upload = ImageUpload(

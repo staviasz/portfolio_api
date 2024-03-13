@@ -59,13 +59,6 @@ class TestUserControllerPresentation:
 
     async def test_execute_with_files_form_data_no_request(self):
         new_request = copy.deepcopy(request)
-        new_request.headers = None
-        response = await controller.execute_with_files_form_data(new_request, file)
-
-        assert response.status_code == 400
-        assert response.body == {"message": "Request not found"}
-
-        new_request.headers = request.headers
         new_request.body = None
         response = await controller.execute_with_files_form_data(new_request, file)
 

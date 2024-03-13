@@ -2,17 +2,29 @@ from typing_extensions import Dict
 
 from src.adapters.rotes.fast_route_adapter import FastRouteAdapter
 from src.presentation.contracts.controller_contract_presentation import Controller
+from src.presentation.contracts.middleware_contract_presentation import (
+    MiddlewareContract,
+)
+from src.presentation.types.http_types_presentation import HttpRequest
 
 
 def adapt_router(
-    controller: Controller, middlewares: Dict | None = None
+    controller: Controller,
+    request: HttpRequest | None = None,
+    middlewares: Dict[str, MiddlewareContract] | None = None,
 ) -> FastRouteAdapter:
-    results_middleware = []
+    try:
+        results_middleware = []
 
-    if middlewares:
-        for key, middleware in middlewares.items():
-            result_middleware = middleware.execute()
-            dict_ = {key: result_middleware}
-            results_middleware.append(dict_)
+        if not middlewares:
+            return FastRouteAdapter(controller)
 
-    return FastRouteAdapter(controller, **results_middleware)
+        if request and middlewares:
+            for key, middleware in middlewares.items():
+                result_middleware = middleware.execute(request=request)
+                dict_ = {key: result_middleware}
+                results_middleware.append(dict_)
+
+        return FastRouteAdapter(controller, *results_middleware)
+    except Exception as error:
+        raise error

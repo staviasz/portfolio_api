@@ -18,12 +18,15 @@ class RepositoryInfra(RepositoryProtocolUseCase):
         return response
 
     async def get_by_email(self, table_name: type[T], email: str) -> dict | None:
-        query = self.session.query(table_name).filter_by(email=email).first()
 
-        if not query:
+        try:
+            query = self.session.query(table_name).filter_by(email=email).first()
+            if not query:
+                return None
+
+            return query.__dict__
+        except Exception:
             return None
-
-        return query.__dict__
 
     async def get_by_id_instace(self, table_name: type[T], id: int) -> T:
         query = self.session.query(table_name).filter_by(id=id).first()
@@ -47,7 +50,12 @@ class RepositoryInfra(RepositoryProtocolUseCase):
         self.session.commit()
         self.session.refresh(query)
         del query.__dict__["_sa_instance_state"]
-
+        print(query.__dict__)
+        print()
+        print()
+        print()
+        print()
+        print()
         return query.__dict__
 
     async def update(self, table_name: type[T], data: dict, id: int) -> dict:

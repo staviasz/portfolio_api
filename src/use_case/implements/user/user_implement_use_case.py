@@ -4,6 +4,7 @@ from src.domain.models.user_models_domain import (
     UserModelUpdateDomain,
 )
 from src.domain.protocols.user_protocols_domain import UserDomainProtocol
+from src.infra.repository.models.user_model_repository_infra import User
 from src.presentation.types.http_types_presentation import HttpResponse
 from src.use_case.protocols.aws.aws_protocol_use_case import AwsProtocolUseCase
 from src.use_case.protocols.bycript.bycript_protocol_use_case import (
@@ -12,8 +13,6 @@ from src.use_case.protocols.bycript.bycript_protocol_use_case import (
 from src.use_case.protocols.repository.repository_protocol_use_case import (
     RepositoryProtocolUseCase,
 )
-
-from sqlalchemy.orm import DeclarativeBase
 
 
 class UserUseCase(UserDomainProtocol):
@@ -31,19 +30,19 @@ class UserUseCase(UserDomainProtocol):
     async def add_user(self, user: UserModelCreateDomain) -> HttpResponse:
         try:
             data = {**user.model_dump()}
-            data["password"] = self.hasher.hash(user.password)
+            data["password"] = await self.hasher.hash(user.password)
             del data["image_upload"]
 
-            if await self.repository.get_by_email(DeclarativeBase, user.email):
+            if await self.repository.get_by_email(User, user.email):
                 return HttpResponse(
                     status_code=409, body={"message": "Email already exists"}
                 )
 
-            data["image_url"] = await self.bucket.upload(file=user.image_upload)
-
-            new_user = await self.repository.create(
-                table_name=DeclarativeBase, data=data
+            data["image_url"] = await self.bucket.upload(
+                file=user.image_upload, folder="users"
             )
+
+            new_user = await self.repository.create(table_name=User, data=data)
 
             response: UserModelDomain = UserModelDomain(**new_user)
 
@@ -62,9 +61,7 @@ class UserUseCase(UserDomainProtocol):
                 data["password"] = self.hasher.hash(data_user.password)
 
             if data_user.email:
-                user_current = await self.repository.get_by_email(
-                    DeclarativeBase, data_user.email
-                )
+                user_current = await self.repository.get_by_email(User, data_user.email)
                 if user_current and user_current["id"] != user["id"]:
                     return HttpResponse(
                         status_code=409, body={"message": "Email already exists"}
@@ -72,11 +69,13 @@ class UserUseCase(UserDomainProtocol):
 
             if data_user.image_upload:
                 data["image_url"] = await self.bucket.update_upload(
-                    last_url_file=user["image_url"], file=data_user.image_upload
+                    last_url_file=user["image_url"],
+                    file=data_user.image_upload,
+                    folder="users",
                 )
 
             update_user = await self.repository.update(
-                table_name=DeclarativeBase, data=data, id=user["id"]
+                table_name=User, data=data, id=user["id"]
             )
 
             response: UserModelDomain = UserModelDomain(**update_user)
@@ -88,7 +87,7 @@ class UserUseCase(UserDomainProtocol):
 
     async def get_all_users(self) -> HttpResponse:
         try:
-            users = await self.repository.get_all(table_name=DeclarativeBase)
+            users = await self.repository.get_all(table_name=User)
 
             response = [UserModelDomain(**user).model_dump() for user in users]
 
@@ -100,7 +99,6 @@ class UserUseCase(UserDomainProtocol):
     async def get_user(self, user: dict) -> HttpResponse:
         try:
             response = UserModelDomain(**user)
-            print("data")
 
             return HttpResponse(status_code=200, body=response.model_dump())
 
@@ -109,7 +107,7 @@ class UserUseCase(UserDomainProtocol):
 
     async def delete_user(self, user_id: int) -> HttpResponse:
         try:
-            await self.repository.delete(table_name=DeclarativeBase, id=user_id)
+            await self.repository.delete(table_name=User, id=user_id)
 
             return HttpResponse(status_code=204, body={})
 
