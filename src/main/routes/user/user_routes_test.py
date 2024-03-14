@@ -47,3 +47,14 @@ class TestUserRoutes:
         assert response.status_code == 201
         assert expect_img_url in body_img
         assert expect_response == body
+
+    async def test_login(self):
+        login_data = {
+            "email": data["email"],
+            "password": data["password"],
+        }
+        response = client.post("/login", json=login_data)
+        print(response.json())
+
+        assert response.status_code == 200
+        assert response.json()["token"]
