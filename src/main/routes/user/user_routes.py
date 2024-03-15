@@ -88,6 +88,7 @@ class UserRoutes:
         ) -> Response:
 
             try:
+
                 request = HttpRequest(
                     headers={
                         "Authorization": authorization.split(" ")[1],

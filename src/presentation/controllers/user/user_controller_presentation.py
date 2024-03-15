@@ -66,7 +66,9 @@ class UserControllerPresentation(Controller, Generic[TSchema]):
             schema_validator = await self.validator.validate(body, self.schema)
 
             if isinstance(schema_validator, list):
+                print("request", schema_validator)
                 return HttpResponse(status_code=422, body=schema_validator)
+
             response = await self.use_case.execute(
                 user=user,
                 data_user=schema_validator,

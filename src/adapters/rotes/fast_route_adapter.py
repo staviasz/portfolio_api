@@ -19,8 +19,6 @@ class FastRouteAdapter:
             request=request, files=files, args=self.args, kwargs=self.kwargs
         )
 
-        print(response_api)
-
         return JSONResponse(
             status_code=response_api.status_code,
             content=response_api.body,
