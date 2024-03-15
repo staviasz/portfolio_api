@@ -11,7 +11,7 @@ class UserModelDomain(BaseModel):
     contact_description: str
     image_url: str
 
-    def model_all_dump(self):
+    def model_all_dump(self) -> dict:
         return {
             "id": self.id,
             "name": self.name,
@@ -80,5 +80,7 @@ class UserModelUpdateDomain(BaseModel):
             "password": self.password,
             "description": self.description,
             "contact_description": self.contact_description,
-            "image_upload": self.image_upload.model_dump(),
+            "image_upload": (
+                self.image_upload.model_dump() if self.image_upload else None
+            ),
         }

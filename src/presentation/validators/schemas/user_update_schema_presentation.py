@@ -10,13 +10,20 @@ class UserUpdateSchema(UserModelUpdateDomain):
     password: Optional[str] = Field(None, min_length=8, max_length=20)
     description: Optional[str] = Field(None, min_length=50)
     contact_description: Optional[str] = Field(None, min_length=50)
-    image_upload: Optional[ImageUpload]
+    image_upload: Optional[ImageUpload] = Field(None)
 
-    @field_validator("name")
-    def validate_name(cls, value: str):
-        if value and re.match(r"^[a-zA-ZÀ-ÿ]+$", value) is None:
-            raise ValueError("Name must be only letters")
-        return value
+    @field_validator(
+        "name",
+        "email",
+        "password",
+        "description",
+        "contact_description",
+        "image_upload",
+    )
+    def check_all_fields(cls, values):
+        if all(value is None for value in values):
+            raise ValueError("At least one field must be non-None")
+        return values
 
     def validate_descrption_is_html(cls, value: str):
         if value and re.match(r"<.*>", value) is None:

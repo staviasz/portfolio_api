@@ -58,7 +58,7 @@ class UserUseCase(UserDomainProtocol):
             data = {**data_user.model_dump()}
 
             if data_user.password:
-                data["password"] = self.hasher.hash(data_user.password)
+                data["password"] = await self.hasher.hash(data_user.password)
 
             if data_user.email:
                 user_current = await self.repository.get_by_email(User, data_user.email)

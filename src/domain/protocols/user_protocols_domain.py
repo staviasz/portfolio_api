@@ -43,7 +43,7 @@ class UserDomainProtocol(Protocol):
         elif user and method == "DELETE":
             return await self.delete_user(user["id"])
 
-        elif method == "GET":
+        elif not method:
             return await self.get_all_users()
 
         return HttpResponse(status_code=500, body={"Error": "Method not implemented"})

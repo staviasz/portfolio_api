@@ -16,5 +16,5 @@ class AuthJwtInfra(JwtProtocolUseCase):
         payload = jsonwebtoken.decode(
             token, PydanticEnv().jwt_secret_key, algorithms=["HS256"]
         )
-        payload_dict = UserModelDomain(**payload).model_all_dump()
-        return payload_dict
+        user = UserModelDomain(**payload)
+        return user

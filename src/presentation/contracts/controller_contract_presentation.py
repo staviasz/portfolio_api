@@ -5,7 +5,7 @@ from src.presentation.types.http_types_presentation import HttpRequest, HttpResp
 
 class Controller(Protocol):
     async def execute_with_files_form_data(
-        self, request: HttpRequest, files: List[UploadFile]
+        self, request: HttpRequest, files: List[UploadFile], *args, **kwargs
     ) -> HttpResponse: ...
 
-    async def execute_json(self, request: HttpRequest) -> HttpResponse: ...
+    async def execute_json(self, request: HttpRequest, *args, **kwargs) -> HttpResponse: ...

@@ -8,7 +8,7 @@ from src.presentation.contracts.middleware_contract_presentation import (
 from src.presentation.types.http_types_presentation import HttpRequest
 
 
-def adapt_router(
+async def adapt_router(
     controller: Controller,
     request: HttpRequest | None = None,
     middlewares: Dict[str, MiddlewareContract] | None = None,
@@ -21,9 +21,8 @@ def adapt_router(
 
         if request and middlewares:
             for key, middleware in middlewares.items():
-                result_middleware = middleware.execute(request=request)
-                dict_ = {key: result_middleware}
-                results_middleware.append(dict_)
+                result_middleware = await middleware.execute(request=request)
+                results_middleware.append(result_middleware)
 
         return FastRouteAdapter(controller, *results_middleware)
     except Exception as error:

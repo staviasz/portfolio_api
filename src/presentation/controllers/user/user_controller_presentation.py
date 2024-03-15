@@ -5,7 +5,6 @@ from src.domain.models.user_models_domain import ImageUpload
 from src.domain.protocols.user_protocols_domain import UserDomainProtocol
 from src.presentation.contracts.controller_contract_presentation import Controller
 from src.presentation.types.http_types_presentation import HttpRequest, HttpResponse
-
 from src.use_case.protocols.pydantic.validation_schema_pydantic_protocol_use_case import (
     ValidationSchemaProtocolUseCase,
 )
@@ -26,40 +25,51 @@ class UserControllerPresentation(Controller, Generic[TSchema]):
         self.use_case = use_case
 
     async def execute_with_files_form_data(
-        self, request: HttpRequest, files: List[UploadFile]
+        self,
+        request: HttpRequest | None = None,
+        files: List[UploadFile] | None = None,
+        *args,
+        **kwargs
     ) -> HttpResponse:
+
+        if not request and not files:
+            return HttpResponse(
+                status_code=400, body={"message": "Request or files must be provided"}
+            )
+
         try:
             method = None
             user = None
+            args = kwargs.get("args", None)
 
-            if isinstance(request.headers, dict):
-                method = request.headers["method"]
-                user = request.headers["user"]
+            if args:
+                user = args[0]
 
-            body = request.body
+            if request and isinstance(request.headers, dict):
+                method = request.headers.get("method")
+
+            body = request.body if request else None
 
             if not body:
                 return HttpResponse(
                     status_code=400, body={"message": "Request not found"}
                 )
 
-            file = files[0]
-            image_upload = ImageUpload(
-                filename=file.filename,
-                mimetype=file.content_type,
-                body=file.file.read(),
-            ).model_dump()
-
-            body["image_upload"] = image_upload
+            if files and files[0]:
+                file = files[0]
+                body["image_upload"] = ImageUpload(
+                    filename=file.filename,
+                    mimetype=file.content_type,
+                    body=file.file.read(),
+                ).model_dump()
 
             schema_validator = await self.validator.validate(body, self.schema)
 
             if isinstance(schema_validator, list):
                 return HttpResponse(status_code=422, body=schema_validator)
-
             response = await self.use_case.execute(
-                data_user=schema_validator,
                 user=user,
+                data_user=schema_validator,
                 method=method,
             )
 
@@ -67,15 +77,16 @@ class UserControllerPresentation(Controller, Generic[TSchema]):
         except Exception as e:
             return HttpResponse(status_code=500, body={"Error": e})
 
-    async def execute_json(self, request: HttpRequest) -> HttpResponse:
+    async def execute_json(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
         try:
-            if not request.headers or not request.body:
-                return HttpResponse(
-                    status_code=400, body={"message": "Request not found"}
-                )
+            method = None
+            user = None
+            args = kwargs.get("args", None)
 
-            method = request.headers["method"]
-            user = request.headers["user"]
+            if args:
+                user = args[0]
+
+            method = request.headers.get("method") if request.headers else None
 
             response = await self.use_case.execute(
                 user=user,

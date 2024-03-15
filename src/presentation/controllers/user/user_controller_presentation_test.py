@@ -206,21 +206,6 @@ class TestUserControllerPresentation:
         assert response.status_code == 200
         assert response.body == {"message": "Success"}
 
-    async def test_execute_json_no_request(self):
-        new_request = copy.deepcopy(request)
-        new_request.headers = None
-        response = await controller.execute_json(new_request)
-
-        assert response.status_code == 400
-        assert response.body == {"message": "Request not found"}
-
-        new_request.headers = request.headers
-        new_request.body = None
-        response = await controller.execute_json(new_request)
-
-        assert response.status_code == 400
-        assert response.body == {"message": "Request not found"}
-
     async def test_execute_json_exception(self):
         use_case.execute.side_effect = Exception("Error Server")
         response = await controller.execute_json(request)

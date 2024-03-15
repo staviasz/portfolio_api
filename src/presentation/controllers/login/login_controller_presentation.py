@@ -25,8 +25,9 @@ class LoginControllerPresentation(Controller):
         self.schema = schema
         self.use_case = use_case
 
-    async def execute_json(self, request: HttpRequest) -> HttpResponse:
+    async def execute_json(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
         try:
+
             if request.body is None:
                 return HttpResponse(status_code=400, body={"message": "Missing body"})
 
@@ -45,6 +46,6 @@ class LoginControllerPresentation(Controller):
             return HttpResponse(status_code=500, body={"Error": error})
 
     async def execute_with_files_form_data(
-        self, request: HttpRequest, files: List[UploadFile]
+        self, request: HttpRequest, files: List[UploadFile], *args, **kwargs
     ) -> HttpResponse:
         return HttpResponse(status_code=500, body={"message": "Not implemented"})

@@ -24,7 +24,7 @@ class AuthMiddleware(MiddlewareContract):
 
             payload = await self.autenticator.decode(token)
 
-            return payload.model_dump()
+            return payload.model_all_dump()
 
         except Exception:
             raise UnauthorizedException()

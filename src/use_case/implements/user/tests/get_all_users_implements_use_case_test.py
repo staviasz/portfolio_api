@@ -11,7 +11,7 @@ del user["image_upload"]
 class TestGetAllUsersImplementsUseCase:
     async def test_get_all_users_exception(self):
         repository.get_all.side_effect = Exception("Error GetAll Server")
-        response = await use_case.execute(method="GET")
+        response = await use_case.execute()
 
         assert response.status_code == 500
         assert isinstance(response.body["Error"], Exception)
@@ -19,7 +19,7 @@ class TestGetAllUsersImplementsUseCase:
 
     async def test_get_all_users_success(self):
         repository.get_all.side_effect = lambda *args, **kwargs: [user]
-        response = await use_case.execute(method="GET")
+        response = await use_case.execute()
 
         del user["password"]
         assert response.status_code == 200

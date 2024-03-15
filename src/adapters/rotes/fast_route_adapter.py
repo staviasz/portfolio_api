@@ -16,8 +16,9 @@ class FastRouteAdapter:
     ) -> JSONResponse:
 
         response_api = await self.controller.execute_with_files_form_data(
-            request=request, files=files
+            request=request, files=files, args=self.args, kwargs=self.kwargs
         )
+
         print(response_api)
 
         return JSONResponse(
@@ -27,7 +28,9 @@ class FastRouteAdapter:
 
     async def adapt_json(self, request: HttpRequest) -> JSONResponse:
 
-        response_api = await self.controller.execute_json(request=request)
+        response_api = await self.controller.execute_json(
+            request=request, args=self.args, kwargs=self.kwargs
+        )
 
         return JSONResponse(
             status_code=response_api.status_code,

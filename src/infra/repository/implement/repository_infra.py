@@ -50,19 +50,14 @@ class RepositoryInfra(RepositoryProtocolUseCase):
         self.session.commit()
         self.session.refresh(query)
         del query.__dict__["_sa_instance_state"]
-        print(query.__dict__)
-        print()
-        print()
-        print()
-        print()
-        print()
         return query.__dict__
 
     async def update(self, table_name: type[T], data: dict, id: int) -> dict:
         try:
-            query = self.get_by_id_instace(table_name, id)
+            query = await self.get_by_id_instace(table_name, id)
             for key, value in data.items():
-                setattr(query, key, value)
+                if value:
+                    setattr(query, key, value)
 
             self.session.commit()
             self.session.refresh(query)
@@ -74,7 +69,7 @@ class RepositoryInfra(RepositoryProtocolUseCase):
 
     async def delete(self, table_name: type[T], id: int) -> None:
         try:
-            query = self.get_by_id_instace(table_name, id)
+            query = await self.get_by_id_instace(table_name, id)
             self.session.delete(query)
             self.session.commit()
         except ValueError:
