@@ -18,6 +18,7 @@ class FastRouteAdapter:
         response_api = await self.controller.execute_with_files_form_data(
             request=request, files=files, args=self.args, kwargs=self.kwargs
         )
+        print(response_api)
 
         return JSONResponse(
             status_code=response_api.status_code,

@@ -8,7 +8,15 @@ from alembic import context
 
 from src.configs.pydantic.pydantic_env_settings_config import PydanticEnv
 from src.configs.repository.client_repository_config import Base
-from src.infra.repository.models import User  # noqa
+
+# flake8: noqa
+from src.infra.repository.models import (
+    User,
+    Project,
+    Image,
+    Post,
+    UserProjectAssociation,
+)
 
 
 # this is the Alembic Config object, which provides

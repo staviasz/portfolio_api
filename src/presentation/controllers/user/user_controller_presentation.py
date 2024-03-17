@@ -1,10 +1,10 @@
 from typing_extensions import List, TypeVar, Type, Generic
 from fastapi import UploadFile
 from pydantic import BaseModel
-from src.domain.models.user_models_domain import ImageUpload
 from src.domain.protocols.user_protocols_domain import UserDomainProtocol
 from src.presentation.contracts.controller_contract_presentation import Controller
 from src.presentation.types.http_types_presentation import HttpRequest, HttpResponse
+from src.presentation.types.image_upload_type_presentation import ImageUpload
 from src.use_case.protocols.pydantic.validation_schema_pydantic_protocol_use_case import (
     ValidationSchemaProtocolUseCase,
 )

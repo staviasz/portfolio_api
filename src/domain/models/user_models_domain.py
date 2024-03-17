@@ -1,6 +1,8 @@
 from typing_extensions import Optional
 from pydantic import BaseModel
 
+from src.presentation.types.image_upload_type_presentation import ImageUpload
+
 
 class UserModelDomain(BaseModel):
     id: int
@@ -30,19 +32,6 @@ class UserModelDomain(BaseModel):
             "description": self.description,
             "contact_description": self.contact_description,
             "image_url": self.image_url,
-        }
-
-
-class ImageUpload(BaseModel):
-    filename: str
-    mimetype: str
-    body: bytes
-
-    def model_dump(self):
-        return {
-            "filename": self.filename,
-            "mimetype": self.mimetype,
-            "body": self.body,
         }
 
 
