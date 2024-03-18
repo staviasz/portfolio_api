@@ -1,5 +1,5 @@
 from typing import Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, HttpUrl
 
 from src.presentation.types.image_upload_type_presentation import ImageUpload
 
@@ -26,16 +26,16 @@ class ProjectModelDomain(BaseModel):
 class ProjectModelCreateDomain(BaseModel):
     name: str
     description: str
-    link_deploy: str
-    link_code: str
+    link_deploy: HttpUrl
+    link_code: HttpUrl
     images_uploads: list[ImageUpload]
 
     def model_dump(self):
         return {
             "name": self.name,
             "description": self.description,
-            "link_deploy": self.link_deploy,
-            "link_code": self.link_code,
+            "link_deploy": str(self.link_deploy),
+            "link_code": str(self.link_code),
             "images_uploads": self.images_uploads,
         }
 
@@ -43,8 +43,8 @@ class ProjectModelCreateDomain(BaseModel):
 class ProjectModelUpdateDomain(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
-    link_deploy: Optional[str] = None
-    link_code: Optional[str] = None
+    link_deploy: Optional[HttpUrl] = None
+    link_code: Optional[HttpUrl] = None
     images_uploads: Optional[list[ImageUpload]] = None
 
     def model_dump(self):
@@ -57,7 +57,7 @@ class ProjectModelUpdateDomain(BaseModel):
         return {
             "name": self.name,
             "description": self.description,
-            "link_deploy": self.link_deploy,
-            "link_code": self.link_code,
+            "link_deploy": str(self.link_deploy),
+            "link_code": str(self.link_code),
             "images_uploads": list_images_dump,
         }

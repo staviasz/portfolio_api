@@ -33,7 +33,7 @@ data = {
             "mimetype": "text/plain",
         }
     ],
-    "link_code": "link_code",
+    "link_code": "https://github.com",
     "name": "test",
-    "link_deploy": "link_deploy",
+    "link_deploy": "https://github.com",
 }

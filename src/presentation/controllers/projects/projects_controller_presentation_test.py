@@ -6,37 +6,49 @@ from unittest.mock import Mock
 from fastapi import UploadFile
 from fastapi.datastructures import Headers
 import pytest
-from src.domain.protocols.user_protocols_domain import UserDomainProtocol
+from src.domain.protocols.project_protocols_domain import ProjectDomainProtocol
 from src.infra.pydantic.validator_schema_infra import ValidatorSchemaInfra
-from src.presentation.controllers.user.user_controller_presentation import (
-    UserControllerPresentation,
+from src.presentation.controllers.projects.projects_controller_presentation import (
+    ProjectsControllerPresentation,
 )
 from src.presentation.types.http_types_presentation import HttpRequest, HttpResponse
-from src.presentation.validators.schemas.user_create_schema_presentation import (
-    UserCreateSchema,
+from src.presentation.validators.schemas.project_create_schema_presentation import (
+    ProjectCreateSchema,
 )
 
-validator = ValidatorSchemaInfra()
-schema = UserCreateSchema
-use_case = Mock(spec_set=UserDomainProtocol)
 
-controller = UserControllerPresentation(
+validator = ValidatorSchemaInfra()
+schema = ProjectCreateSchema
+use_case = Mock(spec_set=ProjectDomainProtocol)
+
+controller = ProjectsControllerPresentation(
     validator=validator, schema=schema, use_case=use_case
 )
 
+
 request: HttpRequest = HttpRequest(
+    params={"id": 1},
     headers={
         "method": "POST",
-        "user": "user",
     },
     body={
+        "name": "name teste",
+        "description": "description" * 10,
+        "link_deploy": "https://github.com",
+        "link_code": "https://github.com",
+    },
+)
+
+kwargs = {
+    "args": {
+        "id": 1,
         "name": "name",
         "email": "email@teste.com",
         "password": "@Teste123",
         "description": "<>description" * 10,
         "contact_description": "contact_description" * 10,
     },
-)
+}
 
 current_dir = os.path.dirname(__file__)
 test_file = os.path.abspath(os.path.join(current_dir, "../../../../test.txt"))
@@ -55,7 +67,7 @@ with open(test_file, "rb") as f:
 
 
 @pytest.mark.asyncio
-class TestUserControllerPresentation:
+class TestProjectControllerPresentation:
 
     async def test_execute_with_files_form_data_no_request_and_no_files(self):
         response = await controller.execute_with_files_form_data(
@@ -77,22 +89,6 @@ class TestUserControllerPresentation:
         assert isinstance(body, list)
         assert body[0] == except_error
 
-    async def test_execute_with_files_form_data_name_is_only_letters(self):
-        new_request = copy.deepcopy(request)
-        new_request.body["name"] = "teste123"
-        response = await controller.execute_with_files_form_data(new_request, file)
-
-        body = response.body
-        except_error = {
-            "field": "name",
-            "type": "value_error",
-            "message": "Value error, Name must be only letters",
-        }
-
-        assert response.status_code == 422
-        assert isinstance(body, list)
-        assert body[0] == except_error
-
     async def test_execute_with_files_form_data_name_have_min_3_letters(self):
         new_request = copy.deepcopy(request)
         new_request.body["name"] = "te"
@@ -102,55 +98,23 @@ class TestUserControllerPresentation:
         except_error = {
             "field": "name",
             "type": "string_too_short",
-            "message": "String should have at least 3 characters",
+            "message": "String should have at least 5 characters",
         }
 
         assert response.status_code == 422
         assert isinstance(body, list)
         assert body[0] == except_error
 
-    async def test_execute_with_files_form_data_email_is_valid(self):
+    async def test_execute_with_files_form_data_name_have_max_150_letters(self):
         new_request = copy.deepcopy(request)
-        new_request.body["email"] = "invalidEmail"
+        new_request.body["name"] = "teste" * 50
         response = await controller.execute_with_files_form_data(new_request, file)
 
         body = response.body
         except_error = {
-            "field": "email",
-            "type": "value_error",
-            "message": """value is not a valid email address: The email address is not valid. It must have exactly one @-sign.""",
-        }
-
-        assert response.status_code == 422
-        assert isinstance(body, list)
-        assert body[0] == except_error
-
-    async def test_execute_with_files_form_data_password_is_valid(self):
-        new_request = copy.deepcopy(request)
-        new_request.body["password"] = "invalidPassword"
-        response = await controller.execute_with_files_form_data(new_request, file)
-
-        body = response.body
-        except_error = {
-            "field": "  Value error, Password must contain at least one lowercase letter, one uppercase letter,",
-            "type": "value_error",
-            "message": "one digit, one special character, and be at least 8 characters long",
-        }
-
-        assert response.status_code == 422
-        assert isinstance(body, list)
-        assert body[0] == except_error
-
-    async def test_execute_with_files_form_data_description_is_html(self):
-        new_request = copy.deepcopy(request)
-        new_request.body["description"] = "test" * 20
-        response = await controller.execute_with_files_form_data(new_request, file)
-
-        body = response.body
-        except_error = {
-            "field": "description",
-            "type": "value_error",
-            "message": "Value error, Description must be html",
+            "field": "name",
+            "type": "string_too_long",
+            "message": "String should have at most 150 characters",
         }
 
         assert response.status_code == 422
@@ -173,16 +137,16 @@ class TestUserControllerPresentation:
         assert isinstance(body, list)
         assert body[0] == except_error
 
-    async def test_execute_with_files_form_data_contact_description_is_min_50(self):
+    async def test_execute_with_files_form_data_link_is_url(self):
         new_request = copy.deepcopy(request)
-        new_request.body["contact_description"] = "test"
+        new_request.body["link_deploy"] = "teste"
         response = await controller.execute_with_files_form_data(new_request, file)
 
         body = response.body
         except_error = {
-            "field": "contact_description",
-            "type": "string_too_short",
-            "message": "String should have at least 50 characters",
+            "field": "link_deploy",
+            "type": "url_parsing",
+            "message": "Input should be a valid URL, relative URL without a base",
         }
 
         assert response.status_code == 422
