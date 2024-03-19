@@ -26,7 +26,7 @@ class ProjectModelDomain(BaseModel):
 class ProjectModelCreateDomain(BaseModel):
     name: str
     description: str
-    link_deploy: HttpUrl
+    link_deploy: Optional[HttpUrl] = None
     link_code: HttpUrl
     images_uploads: list[ImageUpload]
 

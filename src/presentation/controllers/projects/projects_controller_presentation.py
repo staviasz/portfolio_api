@@ -1,6 +1,7 @@
 from typing_extensions import List, TypeVar, Type
 from fastapi import UploadFile
 from pydantic import BaseModel
+from src.domain.models.user_models_domain import UserModelDomain
 from src.domain.protocols.project_protocols_domain import ProjectDomainProtocol
 from src.presentation.contracts.controller_contract_presentation import Controller
 from src.presentation.types.http_types_presentation import HttpRequest, HttpResponse
@@ -45,6 +46,7 @@ class ProjectsControllerPresentation(Controller):
             args = kwargs.get("args", None)
             if args:
                 user = args[0]
+                user = UserModelDomain(**user)
 
             if files:
                 images_urls = []
@@ -59,13 +61,14 @@ class ProjectsControllerPresentation(Controller):
                 body["images_uploads"] = images_urls
 
             schema_validator = await self.validator.validate(body, self.schema)
-            print(body)
-
             if isinstance(schema_validator, list):
                 return HttpResponse(status_code=422, body=schema_validator)
 
             response = await self.use_case.execute(
-                data=schema_validator, user=user, method=method, project_id=project_id
+                data=schema_validator,
+                user=user,
+                method=method,
+                project_id=project_id,
             )
 
             return HttpResponse(status_code=response.status_code, body=response.body)

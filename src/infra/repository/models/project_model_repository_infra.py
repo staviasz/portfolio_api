@@ -5,7 +5,7 @@ from sqlalchemy.orm import relationship
 
 
 class Project(Base):
-    __tablename__ = "project"
+    __tablename__ = "projects"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(150), nullable=False)
@@ -14,7 +14,6 @@ class Project(Base):
     link_code = Column(Text, nullable=False)
     created_at = Column(DateTime, default=func.now())
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
-    user_id = Column(Integer, nullable=False)
     image = relationship("Image", back_populates="project")
     users = relationship(
         "User", secondary="user_project_association", back_populates="projects"

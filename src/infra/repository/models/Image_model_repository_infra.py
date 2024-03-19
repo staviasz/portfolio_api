@@ -14,10 +14,10 @@ class Image(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     image_url = Column(Text, nullable=False)
-    project_id = Column(Integer, ForeignKey("project.id"), nullable=False)
+    project_id = Column(Integer, ForeignKey("projects.id"), nullable=False)
 
     project = relationship("Project", back_populates="image")
 
     __table_args__ = (
-        ForeignKeyConstraint(["project_id"], ["project.id"], name="fk_project_id"),
+        ForeignKeyConstraint(["project_id"], ["projects.id"], name="fk_project_id"),
     )

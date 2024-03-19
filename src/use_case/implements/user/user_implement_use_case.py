@@ -59,7 +59,6 @@ class UserUseCase(UserDomainProtocol):
 
             if data_user.password:
                 data["password"] = await self.hasher.hash(data_user.password)
-
             if data_user.email:
                 user_current = await self.repository.get_by_email(User, data_user.email)
                 if user_current and user_current["id"] != user["id"]:
@@ -77,6 +76,7 @@ class UserUseCase(UserDomainProtocol):
             update_user = await self.repository.update(
                 table_name=User, data=data, id=user["id"]
             )
+            print("data")
 
             response: UserModelDomain = UserModelDomain(**update_user)
 

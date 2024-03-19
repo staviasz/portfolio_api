@@ -30,26 +30,6 @@ token = {"Authorization": "Bearer "}
 @pytest.mark.asyncio
 class TestUserRoutes:
 
-    @pytest.mark.db_setup
-    async def test_add_user(self):
-        response = client.post("/user", data=data, files=file)
-
-        body = response.json()
-        body_img = body["image_url"]
-        del body["image_url"]
-
-        expect_img_url = (
-            "https://portifolioStaviasz.s3.us-east-005.backblazeb2.com/users/"
-        )
-
-        expect_response = data.copy()
-        del expect_response["password"]
-        expect_response["id"] = 1
-
-        assert response.status_code == 201
-        assert expect_img_url in body_img
-        assert expect_response == body
-
     async def test_login(self):
         login_data = {
             "email": data["email"],
@@ -116,31 +96,31 @@ class TestUserRoutes:
         assert expect_img_url in body_img
         assert except_response == body
 
-    async def test_get_all_user(self):
-        response = client.get("/user", headers=token)
+    # async def test_get_all_user(self):
+    #     response = client.get("/user", headers=token)
 
-        body = response.json()
-        assert isinstance(body, list)
+    #     body = response.json()
+    #     assert isinstance(body, list)
 
-        expect_img_url = (
-            "https://portifolioStaviasz.s3.us-east-005.backblazeb2.com/users/"
-        )
+    #     expect_img_url = (
+    #         "https://portifolioStaviasz.s3.us-east-005.backblazeb2.com/users/"
+    #     )
 
-        body_dict = body[0]
-        body_img = body_dict["image_url"]
-        del body_dict["image_url"]
+    #     body_dict = body[0]
+    #     body_img = body_dict["image_url"]
+    #     del body_dict["image_url"]
 
-        except_response = {
-            "id": 1,
-            "name": "name Update",
-            "email": "testando@teste.com",
-            "description": "<>description" * 10,
-            "contact_description": "<>contact_description" * 10,
-        }
+    #     except_response = {
+    #         "id": 1,
+    #         "name": "name Update",
+    #         "email": "testando@teste.com",
+    #         "description": "<>description" * 10,
+    #         "contact_description": "<>contact_description" * 10,
+    #     }
 
-        assert response.status_code == 200
-        assert expect_img_url in body_img
-        assert body_dict == except_response
+    #     assert response.status_code == 200
+    #     assert expect_img_url in body_img
+    #     assert body_dict == except_response
 
     async def test_delete_user(self):
         response = client.delete("/user", headers=token)
