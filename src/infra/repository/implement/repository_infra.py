@@ -1,5 +1,6 @@
 from typing_extensions import Type, TypeVar
 from sqlalchemy.orm import Session, DeclarativeBase
+from src.configs.repository.client_repository_config import BaseCustom
 from src.presentation.types.orm_related_table_data_type_presentation import (
     OrmRelatedTable,
     OrmRelatedTableData,
@@ -9,6 +10,7 @@ from src.use_case.protocols.repository.repository_protocol_use_case import (
 )
 
 T = TypeVar("T", bound=DeclarativeBase)
+T2 = TypeVar("T2", bound=BaseCustom)
 
 
 class RepositoryInfra(RepositoryProtocolUseCase):
@@ -63,25 +65,35 @@ class RepositoryInfra(RepositoryProtocolUseCase):
 
     async def create_with_related(
         self,
-        table_name: type[T],
+        table_name: type[T2],
         data: dict,
         related_table: list[OrmRelatedTableData],
     ) -> dict:
+        try:
+            entity = table_name(**data)
+            self.session.add(entity)
+            self.session.flush()
+            project_id = entity.__dict__["id"]
 
-        query = table_name(**data)
-        for related in related_table:
-            data_list = []
+            for related_data in related_table:
+                field_in_principal_table = related_data["field_in_principal_table"]
+                related_table_class = related_data["table_name"]
+                related_data_to_insert = related_data["data"]
+                for related_data_item in related_data_to_insert:
+                    new_data = {**related_data_item, "project_id": project_id}
+                    related_entity = related_table_class(**new_data)
+                    setattr(related_entity, field_in_principal_table, entity)
+                    self.session.add(related_entity)
 
-            for related_data in related["data"]:
-                data_list.append(related["table_name"](**related_data))
+            self.session.commit()
+            self.session.refresh(entity)
+            if entity.to_dict():
+                return entity.to_dict()
+            return entity.__dict__
 
-            setattr(query, related["field_in_principal_table"], data_list)
-
-        self.session.add(query)
-        self.session.commit()
-        self.session.refresh(query)
-        del query.__dict__["_sa_instance_state"]
-        return query.__dict__
+        except Exception as e:
+            print("teste", e)
+            raise e
 
     async def update_with_related(
         self,
