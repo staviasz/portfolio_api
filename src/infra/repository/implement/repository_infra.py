@@ -1,6 +1,5 @@
 from typing_extensions import Type, TypeVar
 from sqlalchemy.orm import Session, DeclarativeBase
-from src.configs.repository.client_repository_config import BaseCustom
 from src.presentation.types.orm_related_table_data_type_presentation import (
     OrmRelatedTable,
     OrmRelatedTableData,
@@ -10,7 +9,6 @@ from src.use_case.protocols.repository.repository_protocol_use_case import (
 )
 
 T = TypeVar("T", bound=DeclarativeBase)
-T2 = TypeVar("T2", bound=BaseCustom)
 
 
 class RepositoryInfra(RepositoryProtocolUseCase):
@@ -20,7 +18,11 @@ class RepositoryInfra(RepositoryProtocolUseCase):
     async def get_all(self, table_name: Type[T]) -> list[dict]:
         query_all = self.session.query(table_name).all()
 
-        response = [row.__dict__ for row in query_all]
+        response = [
+            row.to_dict() if hasattr(row, "to_dict") else row.__dict__
+            for row in query_all
+        ]
+
         return response
 
     async def get_by_email(self, table_name: type[T], email: str) -> dict | None:
@@ -43,12 +45,17 @@ class RepositoryInfra(RepositoryProtocolUseCase):
         return query
 
     async def get_by_id_dict(self, table_name: type[T], id: int) -> dict:
-        query = self.session.query(table_name).filter_by(id=id).first()
 
-        if not query:
+        try:
+            query = self.session.query(table_name).filter_by(id=id).first()
+
+            if not query:
+                raise ValueError("Id not found")
+            if hasattr(query, "to_dict"):
+                return query.to_dict()
+            return query.__dict__
+        except Exception:
             raise ValueError("Id not found")
-
-        return query.__dict__
 
     async def create(
         self,
@@ -65,7 +72,7 @@ class RepositoryInfra(RepositoryProtocolUseCase):
 
     async def create_with_related(
         self,
-        table_name: type[T2],
+        table_name: type[T],
         data: dict,
         related_table: list[OrmRelatedTableData],
     ) -> dict:
@@ -87,12 +94,11 @@ class RepositoryInfra(RepositoryProtocolUseCase):
 
             self.session.commit()
             self.session.refresh(entity)
-            if entity.to_dict():
+            if hasattr(entity, "to_dict"):
                 return entity.to_dict()
             return entity.__dict__
 
         except Exception as e:
-            print("teste", e)
             raise e
 
     async def update_with_related(
@@ -102,38 +108,51 @@ class RepositoryInfra(RepositoryProtocolUseCase):
         related_table: list[OrmRelatedTableData],
         id: int,
     ) -> dict:
-        query = await self.get_by_id_instace(table_name, id)
+        try:
+            query = await self.get_by_id_instace(table_name, id)
 
-        for key, value in data.items():
-            setattr(query, key, value)
+            for key, value in data.items():
+                if value and value != "None":
+                    setattr(query, key, value)
 
-        for related in related_table:
-            related_instances = getattr(query, related["field_in_principal_table"])
+            for related in related_table:
+                self.session.query(related["table_name"]).filter_by(
+                    project_id=id
+                ).delete()
+                self.session.commit()
+                related_instances = getattr(query, related["field_in_principal_table"])
 
-            related_instances.clear()
+                for related_data_item in related["data"]:
+                    new_data = {**related_data_item, "project_id": id}
+                    related_instance = related["table_name"](**new_data)
+                    related_instances.append(related_instance)
 
-            for related_data in related["data"]:
-                related_instance = related["table_name"](**related_data)
-                related_instances.append(related_instance)
+            self.session.add(query)
+            self.session.commit()
+            self.session.refresh(query)
 
-        self.session.add(query)
-        self.session.commit()
-        self.session.refresh(query)
-        del query.__dict__["_sa_instance_state"]
+            if hasattr(query, "to_dict"):
+                return query.to_dict()
 
-        return query.__dict__
+            del query.__dict__["_sa_instance_state"]
+            return query.__dict__
+        except Exception as e:
+            raise e
 
     async def update(self, table_name: type[T], data: dict, id: int) -> dict:
         try:
             query = await self.get_by_id_instace(table_name, id)
             for key, value in data.items():
-                if value:
+                if value and value != "None":
                     setattr(query, key, value)
 
             self.session.commit()
             self.session.refresh(query)
-            del query.__dict__["_sa_instance_state"]
 
+            if hasattr(query, "to_dict"):
+                return query.to_dict()
+
+            del query.__dict__["_sa_instance_state"]
             return query.__dict__
         except ValueError:
             raise ValueError("Id not found")
@@ -145,8 +164,6 @@ class RepositoryInfra(RepositoryProtocolUseCase):
             self.session.commit()
         except ValueError:
             raise ValueError("Id not found")
-        except Exception as e:
-            print("teste", e)
 
     async def delete_with_related(
         self, table_name: type[T], id: int, related_table: list[OrmRelatedTable]

@@ -53,3 +53,114 @@ class ProjectRoutes:
 
             except Exception as error:
                 return JSONResponse(status_code=500, content=error)
+
+        @self._router.get(f"{self.prefix}/{{project_id}}")
+        async def get_projects(
+            project_id: int, request: Request, authorization: str = Header(...)
+        ) -> Response:
+            try:
+                new_request = HttpRequest(
+                    params={"project_id": project_id},
+                    headers={
+                        "Authorization": authorization.split(" ")[1],
+                        "method": request.method,
+                    },
+                )
+                adapt = await adapt_router(
+                    request=new_request,
+                    controller=make_project_controller(),
+                    middlewares={"auth": make_auth_middleware()},
+                )
+                return await adapt.adapt_json(new_request)
+            except UnauthorizedException as error:
+                return JSONResponse(status_code=401, content=error.__dict__)
+
+            except Exception as error:
+                return JSONResponse(status_code=500, content=error)
+
+        @self._router.put(f"{self.prefix}/{{project_id}}")
+        async def update_project(
+            project_id: int,
+            request: Request,
+            authorization: str = Header(...),
+            files: list[UploadFile] = File(None),
+            name: str | None = Form(None),
+            description: str | None = Form(None),
+            link_deploy: HttpUrl | None = Form(None),
+            link_code: HttpUrl | None = Form(None),
+        ) -> Response:
+            try:
+                new_request = HttpRequest(
+                    params={"project_id": project_id},
+                    headers={
+                        "Authorization": authorization.split(" ")[1],
+                        "method": request.method,
+                    },
+                    body={
+                        "name": name,
+                        "description": description,
+                        "link_deploy": link_deploy,
+                        "link_code": link_code,
+                    },
+                )
+
+                adapt = await adapt_router(
+                    controller=make_project_controller(),
+                    request=new_request,
+                    middlewares={"auth": make_auth_middleware()},
+                )
+
+                return await adapt.adapt_with_files_form_data(
+                    request=new_request, files=files
+                )
+            except UnauthorizedException as error:
+                return JSONResponse(status_code=401, content=error.__dict__)
+
+            except Exception as error:
+                return JSONResponse(status_code=500, content=error)
+
+        @self._router.get(f"{self.prefix}")
+        async def get_all_projects(request: Request, authorization: str = Header(...)):
+            try:
+
+                new_request = HttpRequest(
+                    headers={
+                        "Authorization": authorization.split(" ")[1],
+                    },
+                )
+
+                adapt = await adapt_router(
+                    controller=make_project_controller(),
+                    request=new_request,
+                    middlewares={"auth": make_auth_middleware()},
+                )
+                return await adapt.adapt_json(new_request)
+
+            except UnauthorizedException as error:
+                return JSONResponse(status_code=401, content=error.__dict__)
+
+            except Exception as error:
+                return JSONResponse(status_code=500, content=error)
+
+        @self._router.delete(f"{self.prefix}/{{project_id}}")
+        async def delete_project(
+            project_id: int, request: Request, authorization: str = Header(...)
+        ) -> Response:
+            try:
+                new_request = HttpRequest(
+                    params={"project_id": project_id},
+                    headers={
+                        "Authorization": authorization.split(" ")[1],
+                        "method": request.method,
+                    },
+                )
+                adapt = await adapt_router(
+                    controller=make_project_controller(),
+                    request=new_request,
+                    middlewares={"auth": make_auth_middleware()},
+                )
+                return await adapt.adapt_json(new_request)
+            except UnauthorizedException as error:
+                return JSONResponse(status_code=401, content=error.__dict__)
+
+        return self._router

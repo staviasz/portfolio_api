@@ -42,7 +42,7 @@ class ProjectUseCase(ProjectDomainProtocol):
                     {
                         "table_name": Image,
                         "field_in_principal_table": "image",
-                        "data": [{"image_url": images_urls}],
+                        "data": [{"image_url": image_url} for image_url in images_urls],
                     },
                     {
                         "table_name": UserProjectAssociation,
@@ -63,13 +63,12 @@ class ProjectUseCase(ProjectDomainProtocol):
     ) -> HttpResponse:
 
         try:
-            images_urls = []
 
             new_data = {**data.model_dump()}
             del new_data["images_uploads"]
             response = None
             if data.images_uploads:
-
+                images_urls = []
                 for image in data.images_uploads:
                     image_url = await self.bucket.upload(folder="projects", file=image)
                     images_urls.append(image_url)
@@ -81,7 +80,7 @@ class ProjectUseCase(ProjectDomainProtocol):
                         {
                             "table_name": Image,
                             "field_in_principal_table": "image",
-                            "data": [{"image_url": images_urls}],
+                            "data": [{"image_url": image} for image in images_urls],
                         }
                     ],
                     id=project_id,
@@ -114,7 +113,9 @@ class ProjectUseCase(ProjectDomainProtocol):
     async def get_all_projects(self) -> HttpResponse:
         try:
             response = await self.repository.get_all(table_name=Project)
-            projects = [ProjectModelDomain(**project) for project in response]
+            projects = [
+                ProjectModelDomain(**project).model_dump() for project in response
+            ]
             return HttpResponse(status_code=200, body=projects)
         except Exception as error:
             return HttpResponse(status_code=500, body={"Error": error})

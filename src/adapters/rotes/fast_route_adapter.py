@@ -12,13 +12,12 @@ class FastRouteAdapter:
         self.kwargs = kwargs
 
     async def adapt_with_files_form_data(
-        self, request: HttpRequest, files: List[UploadFile]
+        self, request: HttpRequest, files: List[UploadFile] | None
     ) -> JSONResponse:
 
         response_api = await self.controller.execute_with_files_form_data(
             request=request, files=files, args=self.args, kwargs=self.kwargs
         )
-        print(response_api)
 
         return JSONResponse(
             status_code=response_api.status_code,

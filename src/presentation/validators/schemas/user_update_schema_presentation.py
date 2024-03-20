@@ -1,6 +1,6 @@
 import re
 from typing_extensions import Optional
-from pydantic import Field, EmailStr, field_validator
+from pydantic import Field, EmailStr, field_validator, root_validator
 from src.domain.models.user_models_domain import ImageUpload, UserModelUpdateDomain
 
 
@@ -11,6 +11,12 @@ class UserUpdateSchema(UserModelUpdateDomain):
     description: Optional[str] = Field(None, min_length=50)
     contact_description: Optional[str] = Field(None, min_length=50)
     image_upload: Optional[ImageUpload] = Field(None)
+
+    @root_validator(pre=True)
+    def validate_all_fields_are_none(cls, values):
+        if all(value is None for value in values.values()):
+            raise ValueError("Todos os campos são nulos.")
+        return values
 
     @field_validator("name")
     def validate_name(cls, value: str):

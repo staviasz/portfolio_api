@@ -31,8 +31,6 @@ class TestEditProjectUseCase:
             lambda *args, **kwargs: repository_return
         )
         response = await use_case.execute(data=new_data, user=user, project_id=1)
-        print(response.body)
-        print(repository_return)
 
         assert response.status_code == 200
         assert response.body == repository_return
@@ -51,7 +49,6 @@ class TestEditProjectUseCase:
         repository_return = {**_data.model_dump(), "images_urls": ["image_url"]}
         del repository_return["images_uploads"]
         repository_return["id"] = 1
-        print(repository_return)
 
         repository.update.side_effect = lambda *args, **kwargs: repository_return
         response = await use_case.execute(data=_data, user=user, project_id=1)

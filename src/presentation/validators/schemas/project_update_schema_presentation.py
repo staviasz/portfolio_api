@@ -1,4 +1,4 @@
-from pydantic import Field, HttpUrl
+from pydantic import Field, HttpUrl, root_validator
 from src.domain.models.project_models_domain import ProjectModelUpdateDomain
 from src.presentation.types.image_upload_type_presentation import ImageUpload
 
@@ -9,3 +9,9 @@ class ProjectUpdateSchema(ProjectModelUpdateDomain):
     link_deploy: HttpUrl | None = Field(None)
     link_code: HttpUrl | None = Field(None)
     images_uploads: list[ImageUpload] | None = Field(None)
+
+    @root_validator(pre=True)
+    def validate_all_fields_are_none(cls, values):
+        if all(value is None for value in values.values()):
+            raise ValueError("Todos os campos são nulos.")
+        return values

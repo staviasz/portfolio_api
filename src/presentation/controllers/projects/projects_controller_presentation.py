@@ -27,17 +27,18 @@ class ProjectsControllerPresentation(Controller):
         self.use_case = use_case
 
     async def execute_with_files_form_data(
-        self, request: HttpRequest, files: List[UploadFile], *args, **kwargs
+        self, request: HttpRequest, files: List[UploadFile] | None, *args, **kwargs
     ) -> HttpResponse:
         if not request and not files:
             return HttpResponse(
                 status_code=400, body={"message": "Request or files must be provided"}
             )
+
         try:
             user = None
             body = request.body if request and request.body else {}
             project_id = (
-                request.params.get("id") if request and request.params else None
+                request.params.get("project_id") if request and request.params else None
             )
             method = (
                 request.headers.get("method") if request and request.headers else None
@@ -47,7 +48,6 @@ class ProjectsControllerPresentation(Controller):
             if args:
                 user = args[0]
                 user = UserModelDomain(**user)
-
             if files:
                 images_urls = []
                 for file in files:
@@ -77,17 +77,24 @@ class ProjectsControllerPresentation(Controller):
 
     async def execute_json(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
         try:
+            user = None
+            args = kwargs.get("args", None)
+            if args:
+                user = args[0]
+                user = UserModelDomain(**user)
             project_id = (
-                request.params.get("id") if request and request.params else None
+                request.params.get("project_id") if request and request.params else None
             )
             method = (
                 request.headers.get("method") if request and request.headers else None
             )
 
-            response = await self.use_case.execute(project_id=project_id, method=method)
+            response = await self.use_case.execute(
+                project_id=project_id, method=method, user=user
+            )
 
             return HttpResponse(
-                status_code=200,
+                status_code=response.status_code,
                 body=response.body,
             )
         except Exception as error:

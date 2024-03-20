@@ -76,7 +76,6 @@ class UserUseCase(UserDomainProtocol):
             update_user = await self.repository.update(
                 table_name=User, data=data, id=user["id"]
             )
-            print("data")
 
             response: UserModelDomain = UserModelDomain(**update_user)
 

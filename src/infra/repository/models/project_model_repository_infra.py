@@ -18,3 +18,15 @@ class Project(Base):
     users = relationship(
         "User", secondary="user_project_association", back_populates="projects"
     )
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "description": self.description,
+            "link_deploy": self.link_deploy,
+            "link_code": self.link_code,
+            "created_at": self.created_at,
+            "updated_at": self.updated_at,
+            "images_urls": [image.image_url for image in self.image],
+        }
