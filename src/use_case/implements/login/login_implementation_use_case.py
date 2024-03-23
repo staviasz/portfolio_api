@@ -2,6 +2,9 @@ from src.domain.models.login_models_domain import LoginModelDomain
 from src.domain.models.user_models_domain import UserModelDomain
 from src.domain.protocols.login_protocols_domain import LoginDomainProtocol
 from src.infra.repository.models.user_model_repository_infra import User
+from src.presentation.errors.exception_custom_errors_presentation import (
+    ExceptionCustomPresentation,
+)
 from src.presentation.types.http_types_presentation import HttpResponse
 from src.use_case.protocols.bycript.bycript_protocol_use_case import (
     BycryptProtocolUseCase,
@@ -42,5 +45,5 @@ class loginUseCase(LoginDomainProtocol):
 
             return HttpResponse(status_code=200, body={"token": token})
 
-        except Exception as error:
-            return HttpResponse(status_code=500, body={"Error": error})
+        except ExceptionCustomPresentation as error:
+            return HttpResponse(status_code=error.status_code, body=error.body)

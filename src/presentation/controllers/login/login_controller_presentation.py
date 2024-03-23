@@ -4,6 +4,9 @@ from pydantic import BaseModel
 from src.domain.models.login_models_domain import LoginModelDomain
 from src.domain.protocols.login_protocols_domain import LoginDomainProtocol
 from src.presentation.contracts.controller_contract_presentation import Controller
+from src.presentation.errors.exception_custom_errors_presentation import (
+    ExceptionCustomPresentation,
+)
 from src.presentation.types.http_types_presentation import HttpRequest, HttpResponse
 
 from src.use_case.protocols.pydantic.validation_schema_pydantic_protocol_use_case import (
@@ -42,10 +45,10 @@ class LoginControllerPresentation(Controller):
 
             return HttpResponse(status_code=response.status_code, body=response.body)
 
-        except Exception as error:
-            return HttpResponse(status_code=500, body={"Error": error})
+        except ExceptionCustomPresentation as error:
+            return HttpResponse(status_code=error.status_code, body=error.body)
 
     async def execute_with_files_form_data(
-        self, request: HttpRequest, files: List[UploadFile], *args, **kwargs
+        self, request: HttpRequest, files: List[UploadFile] | None, *args, **kwargs
     ) -> HttpResponse:
-        return HttpResponse(status_code=500, body={"message": "Not implemented"})
+        return HttpResponse(status_code=501, body={"message": "Not implemented"})

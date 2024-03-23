@@ -3,6 +3,9 @@ from fastapi.responses import JSONResponse
 
 from src.adapters.rotes.route_adapter import adapt_router
 from src.factory.login.make_login_controller import make_login_controller
+from src.presentation.errors.exception_custom_errors_presentation import (
+    ExceptionCustomPresentation,
+)
 from src.presentation.types.http_types_presentation import HttpRequest
 
 
@@ -22,7 +25,7 @@ class LoginRoutes:
 
                 return await adapt.adapt_json(new_request)
 
-            except Exception as error:
-                return JSONResponse(status_code=500, content={"Error": error})
+            except ExceptionCustomPresentation as error:
+                return JSONResponse(status_code=error.status_code, content=error.body)
 
         return self._router

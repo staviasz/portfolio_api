@@ -3,6 +3,9 @@ from fastapi import UploadFile
 from pydantic import BaseModel
 from src.domain.protocols.user_protocols_domain import UserDomainProtocol
 from src.presentation.contracts.controller_contract_presentation import Controller
+from src.presentation.errors.exception_custom_errors_presentation import (
+    ExceptionCustomPresentation,
+)
 from src.presentation.types.http_types_presentation import HttpRequest, HttpResponse
 from src.presentation.types.image_upload_type_presentation import ImageUpload
 from src.use_case.protocols.pydantic.validation_schema_pydantic_protocol_use_case import (
@@ -68,8 +71,8 @@ class UserControllerPresentation(Controller, Generic[TSchema]):
             )
 
             return HttpResponse(status_code=response.status_code, body=response.body)
-        except Exception as e:
-            return HttpResponse(status_code=500, body={"Error": e})
+        except ExceptionCustomPresentation as error:
+            return HttpResponse(status_code=error.status_code, body=error.body)
 
     async def execute_json(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
         try:
@@ -88,5 +91,5 @@ class UserControllerPresentation(Controller, Generic[TSchema]):
             )
 
             return HttpResponse(status_code=response.status_code, body=response.body)
-        except Exception as e:
-            return HttpResponse(status_code=500, body={"Error": e})
+        except ExceptionCustomPresentation as error:
+            return HttpResponse(status_code=error.status_code, body=error.body)

@@ -7,6 +7,9 @@ from src.infra.pydantic.validator_schema_infra import ValidatorSchemaInfra
 from src.presentation.controllers.login.login_controller_presentation import (
     LoginControllerPresentation,
 )
+from src.presentation.errors.exception_custom_errors_presentation import (
+    ExceptionCustomPresentation,
+)
 from src.presentation.types.http_types_presentation import HttpRequest, HttpResponse
 from src.presentation.validators.schemas.login_schema_presentation import (
     LoginSchemaPresentation,
@@ -105,12 +108,16 @@ class TestLoginControllerPresentation:
         assert response.body == expect_body
 
     async def test_use_case_exception(self):
-        use_case.execute.side_effect = Exception("Error UseCase Server")
+        use_case.execute.side_effect = ExceptionCustomPresentation(
+            status_code=500, message="Error UseCase Server", type="Error Server"
+        )
         response = await controller.execute_json(request)
 
         assert response.status_code == 500
-        assert isinstance(response.body["Error"], Exception)
-        assert str(response.body["Error"]) == "Error UseCase Server"
+        assert response.body == {
+            "message": "Error UseCase Server",
+            "type": "Error Server",
+        }
 
     async def test_use_case_success(self):
         use_case.execute.side_effect = lambda *args, **kwargs: HttpResponse(

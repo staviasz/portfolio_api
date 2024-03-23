@@ -5,9 +5,10 @@ from pydantic import HttpUrl
 from src.adapters.rotes.route_adapter import adapt_router
 from src.factory.middlewares.auth_middleware_factory import make_auth_middleware
 from src.factory.project.make_project_controller_factory import make_project_controller
-from src.presentation.errors.unautorized_exception_presentation import (
-    UnauthorizedException,
+from src.presentation.errors.exception_custom_errors_presentation import (
+    ExceptionCustomPresentation,
 )
+
 from src.presentation.types.http_types_presentation import HttpRequest
 
 
@@ -48,11 +49,9 @@ class ProjectRoutes:
                 return await adapt.adapt_with_files_form_data(
                     request=new_request, files=files
                 )
-            except UnauthorizedException as error:
-                return JSONResponse(status_code=401, content=error.__dict__)
 
-            except Exception as error:
-                return JSONResponse(status_code=500, content=error)
+            except ExceptionCustomPresentation as error:
+                return JSONResponse(status_code=error.status_code, content=error.body)
 
         @self._router.get(f"{self.prefix}/{{project_id}}")
         async def get_projects(
@@ -72,11 +71,9 @@ class ProjectRoutes:
                     middlewares={"auth": make_auth_middleware()},
                 )
                 return await adapt.adapt_json(new_request)
-            except UnauthorizedException as error:
-                return JSONResponse(status_code=401, content=error.__dict__)
 
-            except Exception as error:
-                return JSONResponse(status_code=500, content=error)
+            except ExceptionCustomPresentation as error:
+                return JSONResponse(status_code=error.status_code, content=error.body)
 
         @self._router.put(f"{self.prefix}/{{project_id}}")
         async def update_project(
@@ -113,11 +110,8 @@ class ProjectRoutes:
                 return await adapt.adapt_with_files_form_data(
                     request=new_request, files=files
                 )
-            except UnauthorizedException as error:
-                return JSONResponse(status_code=401, content=error.__dict__)
-
-            except Exception as error:
-                return JSONResponse(status_code=500, content=error)
+            except ExceptionCustomPresentation as error:
+                return JSONResponse(status_code=error.status_code, content=error.body)
 
         @self._router.get(f"{self.prefix}")
         async def get_all_projects(request: Request, authorization: str = Header(...)):
@@ -136,11 +130,8 @@ class ProjectRoutes:
                 )
                 return await adapt.adapt_json(new_request)
 
-            except UnauthorizedException as error:
-                return JSONResponse(status_code=401, content=error.__dict__)
-
-            except Exception as error:
-                return JSONResponse(status_code=500, content=error)
+            except ExceptionCustomPresentation as error:
+                return JSONResponse(status_code=error.status_code, content=error.body)
 
         @self._router.delete(f"{self.prefix}/{{project_id}}")
         async def delete_project(
@@ -160,7 +151,8 @@ class ProjectRoutes:
                     middlewares={"auth": make_auth_middleware()},
                 )
                 return await adapt.adapt_json(new_request)
-            except UnauthorizedException as error:
-                return JSONResponse(status_code=401, content=error.__dict__)
+
+            except ExceptionCustomPresentation as error:
+                return JSONResponse(status_code=error.status_code, content=error.body)
 
         return self._router

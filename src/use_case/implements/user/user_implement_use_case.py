@@ -5,6 +5,9 @@ from src.domain.models.user_models_domain import (
 )
 from src.domain.protocols.user_protocols_domain import UserDomainProtocol
 from src.infra.repository.models.user_model_repository_infra import User
+from src.presentation.errors.exception_custom_errors_presentation import (
+    ExceptionCustomPresentation,
+)
 from src.presentation.types.http_types_presentation import HttpResponse
 from src.use_case.protocols.aws.aws_protocol_use_case import AwsProtocolUseCase
 from src.use_case.protocols.bycript.bycript_protocol_use_case import (
@@ -47,8 +50,8 @@ class UserUseCase(UserDomainProtocol):
             response: UserModelDomain = UserModelDomain(**new_user)
 
             return HttpResponse(status_code=201, body=response.model_dump())
-        except Exception as e:
-            return HttpResponse(status_code=500, body={"Error": e})
+        except ExceptionCustomPresentation as error:
+            return HttpResponse(status_code=error.status_code, body=error.body)
 
     async def edit_user(
         self, user: dict, data_user: UserModelUpdateDomain
@@ -81,8 +84,8 @@ class UserUseCase(UserDomainProtocol):
 
             return HttpResponse(status_code=200, body=response.model_dump())
 
-        except Exception as e:
-            return HttpResponse(status_code=500, body={"Error": e})
+        except ExceptionCustomPresentation as error:
+            return HttpResponse(status_code=error.status_code, body=error.body)
 
     async def get_all_users(self) -> HttpResponse:
         try:
@@ -92,8 +95,8 @@ class UserUseCase(UserDomainProtocol):
 
             return HttpResponse(status_code=200, body=response)
 
-        except Exception as e:
-            return HttpResponse(status_code=500, body={"Error": e})
+        except ExceptionCustomPresentation as error:
+            return HttpResponse(status_code=error.status_code, body=error.body)
 
     async def get_user(self, user: dict) -> HttpResponse:
         try:
@@ -101,8 +104,8 @@ class UserUseCase(UserDomainProtocol):
 
             return HttpResponse(status_code=200, body=response.model_dump())
 
-        except Exception as e:
-            return HttpResponse(status_code=500, body={"Error": e})
+        except ExceptionCustomPresentation as error:
+            return HttpResponse(status_code=error.status_code, body=error.body)
 
     async def delete_user(self, user_id: int) -> HttpResponse:
         try:
@@ -110,5 +113,5 @@ class UserUseCase(UserDomainProtocol):
 
             return HttpResponse(status_code=204, body={})
 
-        except Exception as e:
-            return HttpResponse(status_code=500, body={"Error": e})
+        except ExceptionCustomPresentation as error:
+            return HttpResponse(status_code=error.status_code, body=error.body)

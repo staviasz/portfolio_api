@@ -49,13 +49,7 @@ class TestUserRoutes:
         )
 
         assert response.status_code == 401
-        assert response.json() == {
-            "Error": {
-                "status_code": 401,
-                "type": "UnauthorizedException",
-                "message": "invalid access credentials",
-            }
-        }
+        assert response.json() == {"message": "Invalid token", "type": "unauthorized"}
 
     async def test_update_success(self):
         new_data = data.copy()

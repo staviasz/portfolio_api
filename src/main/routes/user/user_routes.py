@@ -4,9 +4,10 @@ from fastapi.responses import JSONResponse
 from src.adapters.rotes.route_adapter import adapt_router
 from src.factory.middlewares.auth_middleware_factory import make_auth_middleware
 from src.factory.user.user_controller_factory import make_user_controller
-from src.presentation.errors.unautorized_exception_presentation import (
-    UnauthorizedException,
+from src.presentation.errors.exception_custom_errors_presentation import (
+    ExceptionCustomPresentation,
 )
+
 from src.presentation.types.http_types_presentation import HttpRequest
 
 
@@ -43,38 +44,44 @@ class UserRoutes:
                     request=request, files=[file]
                 )
 
-            except Exception as error:
-                return JSONResponse(status_code=500, content=error)
+            except ExceptionCustomPresentation as error:
+                return JSONResponse(status_code=error.status_code, content=error.body)
 
         @self._router.get(f"{self.prefix}/profile")
         async def get_user(req: Request, authorization: str = Header(...)):
-
-            request = HttpRequest(
-                headers={
-                    "Authorization": authorization.split(" ")[1],
-                    "method": req.method,
-                }
-            )
-            adapt = await adapt_router(
-                request=request,
-                controller=make_user_controller(),
-                middlewares={"auth": make_auth_middleware()},
-            )
-            return await adapt.adapt_json(request)
+            try:
+                request = HttpRequest(
+                    headers={
+                        "Authorization": authorization.split(" ")[1],
+                        "method": req.method,
+                    }
+                )
+                adapt = await adapt_router(
+                    request=request,
+                    controller=make_user_controller(),
+                    middlewares={"auth": make_auth_middleware()},
+                )
+                return await adapt.adapt_json(request)
+            except ExceptionCustomPresentation as error:
+                return JSONResponse(status_code=error.status_code, content=error.body)
 
         @self._router.get(f"{self.prefix}")
         async def get_all_user(authorization: str = Header(...)):
-            request = HttpRequest(
-                headers={
-                    "Authorization": authorization.split(" ")[1],
-                }
-            )
-            adapt = await adapt_router(
-                request=request,
-                controller=make_user_controller(),
-                middlewares={"auth": make_auth_middleware()},
-            )
-            return await adapt.adapt_json(request)
+            try:
+
+                request = HttpRequest(
+                    headers={
+                        "Authorization": authorization.split(" ")[1],
+                    }
+                )
+                adapt = await adapt_router(
+                    request=request,
+                    controller=make_user_controller(),
+                    middlewares={"auth": make_auth_middleware()},
+                )
+                return await adapt.adapt_json(request)
+            except ExceptionCustomPresentation as error:
+                return JSONResponse(status_code=error.status_code, content=error.body)
 
         @self._router.put(f"{self.prefix}")
         async def update_user(
@@ -112,25 +119,27 @@ class UserRoutes:
                     request=request, files=[file]
                 )
 
-            except UnauthorizedException as error:
-                return JSONResponse(status_code=401, content={"Error": error.__dict__})
-
-            except Exception as error:
-                return JSONResponse(status_code=500, content={"Error": error})
+            except ExceptionCustomPresentation as error:
+                return JSONResponse(status_code=error.status_code, content=error.body)
 
         @self._router.delete(f"{self.prefix}")
         async def delete_user(req: Request, authorization: str = Header(...)):
-            request = HttpRequest(
-                headers={
-                    "Authorization": authorization.split(" ")[1],
-                    "method": req.method,
-                }
-            )
-            adapt = await adapt_router(
-                request=request,
-                controller=make_user_controller(),
-                middlewares={"auth": make_auth_middleware()},
-            )
-            return await adapt.adapt_json(request)
+
+            try:
+                request = HttpRequest(
+                    headers={
+                        "Authorization": authorization.split(" ")[1],
+                        "method": req.method,
+                    }
+                )
+                adapt = await adapt_router(
+                    request=request,
+                    controller=make_user_controller(),
+                    middlewares={"auth": make_auth_middleware()},
+                )
+                return await adapt.adapt_json(request)
+
+            except ExceptionCustomPresentation as error:
+                return JSONResponse(status_code=error.status_code, content=error.body)
 
         return self._router

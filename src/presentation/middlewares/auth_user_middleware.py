@@ -1,9 +1,10 @@
 from src.presentation.contracts.middleware_contract_presentation import (
     MiddlewareContract,
 )
-from src.presentation.errors.unautorized_exception_presentation import (
-    UnauthorizedException,
+from src.presentation.errors.exception_custom_errors_presentation import (
+    ExceptionCustomPresentation,
 )
+
 from src.presentation.types.http_types_presentation import HttpRequest
 from src.use_case.protocols.jwt.decode_jwt_protocol_use_case import (
     JwtDecodeProtocolUseCase,
@@ -20,11 +21,15 @@ class AuthMiddleware(MiddlewareContract):
             token = request.headers.get("Authorization") if request.headers else None
 
             if not token:
-                raise UnauthorizedException(message="Token not found")
+                raise ExceptionCustomPresentation(
+                    status_code=401, type="unauthorized", message="No token provided"
+                )
 
             payload = await self.autenticator.decode(token)
 
             return payload.model_all_dump()
 
         except Exception:
-            raise UnauthorizedException()
+            raise ExceptionCustomPresentation(
+                status_code=401, type="unauthorized", message="Invalid token"
+            )

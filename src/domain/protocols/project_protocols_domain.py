@@ -54,6 +54,6 @@ class ProjectDomainProtocol(Protocol):
             return await self.get_all_projects()
 
         return HttpResponse(
-            status_code=500,
+            status_code=501,
             body={"message": "Method not implemented"},
         )

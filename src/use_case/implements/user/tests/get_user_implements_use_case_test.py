@@ -1,4 +1,5 @@
 import pytest
+
 from src.use_case.implements.user.tests.setup import use_case, data_user
 
 
@@ -10,6 +11,7 @@ del user["image_upload"]
 
 @pytest.mark.asyncio
 class TestGetUserImplementsUseCase:
+
     async def test_get_user_implements_use_case(self):
         result = await use_case.execute(user=user, method="GET")
 

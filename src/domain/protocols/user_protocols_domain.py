@@ -46,4 +46,4 @@ class UserDomainProtocol(Protocol):
         elif not method:
             return await self.get_all_users()
 
-        return HttpResponse(status_code=500, body={"Error": "Method not implemented"})
+        return HttpResponse(status_code=501, body={"Error": "Method not implemented"})

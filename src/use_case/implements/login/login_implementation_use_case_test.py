@@ -2,6 +2,9 @@ from unittest.mock import Mock
 import pytest
 
 from src.domain.models.login_models_domain import LoginModelDomain
+from src.presentation.errors.exception_custom_errors_presentation import (
+    ExceptionCustomPresentation,
+)
 from src.use_case.implements.login.login_implementation_use_case import loginUseCase
 from src.use_case.protocols.bycript.bycript_protocol_use_case import (
     BycryptProtocolUseCase,
@@ -36,13 +39,18 @@ user = {
 @pytest.mark.asyncio
 class TestLoginUseCase:
     async def test_get_by_email_exception(self):
-        repository.get_by_email.side_effect = Exception("Error Email Server")
+        repository.get_by_email.side_effect = ExceptionCustomPresentation(
+            status_code=500, message="Error Email Server", type="Error Server"
+        )
 
         response = await use_case.execute(data)
+        print(response)
 
         assert response.status_code == 500
-        assert isinstance(response.body["Error"], Exception)
-        assert str(response.body["Error"]) == "Error Email Server"
+        assert response.body == {
+            "message": "Error Email Server",
+            "type": "Error Server",
+        }
 
     async def test_get_by_email_not_found(self):
         repository.get_by_email.side_effect = lambda *args, **kwargs: None
@@ -61,13 +69,17 @@ class TestLoginUseCase:
         assert response.body["token"]
 
     async def test_hasher_exception(self):
-        hasher.compare.side_effect = Exception("Error Hasher Server")
+        hasher.compare.side_effect = ExceptionCustomPresentation(
+            status_code=500, message="Error Hasher Server", type="Error Server"
+        )
 
         response = await use_case.execute(data)
 
         assert response.status_code == 500
-        assert isinstance(response.body["Error"], Exception)
-        assert str(response.body["Error"]) == "Error Hasher Server"
+        assert response.body == {
+            "message": "Error Hasher Server",
+            "type": "Error Server",
+        }
 
     async def test_hasher_false(self):
         hasher.compare.side_effect = lambda *args, **kwargs: False
@@ -86,13 +98,17 @@ class TestLoginUseCase:
         assert response.body["token"]
 
     async def test_autenticator_exception(self):
-        authenticator.encode.side_effect = Exception("Error Authenticator Server")
+        authenticator.encode.side_effect = ExceptionCustomPresentation(
+            status_code=500, message="Error Authenticator Server", type="Error Server"
+        )
 
         response = await use_case.execute(data)
 
         assert response.status_code == 500
-        assert isinstance(response.body["Error"], Exception)
-        assert str(response.body["Error"]) == "Error Authenticator Server"
+        assert response.body == {
+            "message": "Error Authenticator Server",
+            "type": "Error Server",
+        }
 
     async def test_authenticator_success(self):
         authenticator.encode.side_effect = lambda *args, **kwargs: "token"

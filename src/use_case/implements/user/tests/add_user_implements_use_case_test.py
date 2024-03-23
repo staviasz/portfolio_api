@@ -1,6 +1,9 @@
 import pytest
 from src.domain.models.user_models_domain import UserModelCreateDomain
 
+from src.presentation.errors.exception_custom_errors_presentation import (
+    ExceptionCustomPresentation,
+)
 from src.use_case.implements.user.tests.setup import (
     use_case,
     data_user,
@@ -14,12 +17,16 @@ data_add_user = UserModelCreateDomain(**data_user)
 @pytest.mark.asyncio
 class TestAddUserImplementsUseCase:
     async def test_get_by_email_exception(self):
-        repository.get_by_email.side_effect = Exception("Error Email Server")
+        repository.get_by_email.side_effect = ExceptionCustomPresentation(
+            type="Error Server", status_code=500, message="Error Email Server"
+        )
         response = await use_case.execute(data_user=data_add_user)
 
         assert response.status_code == 500
-        assert isinstance(response.body["Error"], Exception)
-        assert str(response.body["Error"]) == "Error Email Server"
+        assert response.body == {
+            "message": "Error Email Server",
+            "type": "Error Server",
+        }
 
     async def test_get_by_email_exists(self):
         repository.get_by_email.side_effect = lambda *args, **kwargs: True
@@ -43,12 +50,16 @@ class TestAddUserImplementsUseCase:
         assert response.body == new_user
 
     async def test_upload_exception(self):
-        bucket.upload.side_effect = Exception("Error Upload Server")
+        bucket.upload.side_effect = ExceptionCustomPresentation(
+            type="Error Server", status_code=500, message="Error Upload Server"
+        )
         response = await use_case.execute(data_user=data_add_user)
 
         assert response.status_code == 500
-        assert isinstance(response.body["Error"], Exception)
-        assert str(response.body["Error"]) == "Error Upload Server"
+        assert response.body == {
+            "message": "Error Upload Server",
+            "type": "Error Server",
+        }
 
     async def test_upload_success(self):
         new_user = data_user.copy()
@@ -65,9 +76,13 @@ class TestAddUserImplementsUseCase:
         assert response.body == new_user
 
     async def test_create_exception(self):
-        repository.create.side_effect = Exception("Error Create Server")
+        repository.create.side_effect = ExceptionCustomPresentation(
+            type="Error Server", status_code=500, message="Error Repository Server"
+        )
         response = await use_case.execute(data_user=data_add_user)
 
         assert response.status_code == 500
-        assert isinstance(response.body["Error"], Exception)
-        assert str(response.body["Error"]) == "Error Create Server"
+        assert response.body == {
+            "message": "Error Repository Server",
+            "type": "Error Server",
+        }

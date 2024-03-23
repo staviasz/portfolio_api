@@ -1,5 +1,8 @@
 from typing_extensions import Type, TypeVar
 from sqlalchemy.orm import Session, DeclarativeBase
+from src.presentation.errors.exception_custom_errors_presentation import (
+    ExceptionCustomPresentation,
+)
 from src.presentation.types.orm_related_table_data_type_presentation import (
     OrmRelatedTable,
     OrmRelatedTableData,
@@ -16,14 +19,21 @@ class RepositoryInfra(RepositoryProtocolUseCase):
         self.session = session
 
     async def get_all(self, table_name: Type[T]) -> list[dict]:
-        query_all = self.session.query(table_name).all()
+        try:
+            query_all = self.session.query(table_name).all()
 
-        response = [
-            row.to_dict() if hasattr(row, "to_dict") else row.__dict__
-            for row in query_all
-        ]
+            response = [
+                row.to_dict() if hasattr(row, "to_dict") else row.__dict__
+                for row in query_all
+            ]
 
-        return response
+            return response
+        except Exception:
+            raise ExceptionCustomPresentation(
+                status_code=500,
+                type="Server Error",
+                message="Repository get all error",
+            )
 
     async def get_by_email(self, table_name: type[T], email: str) -> dict | None:
 
@@ -34,15 +44,26 @@ class RepositoryInfra(RepositoryProtocolUseCase):
 
             return query.__dict__
         except Exception:
-            return None
+            raise ExceptionCustomPresentation(
+                status_code=500,
+                type="Server Error",
+                message="Repository get by email error",
+            )
 
     async def get_by_id_instace(self, table_name: type[T], id: int) -> T:
-        query = self.session.query(table_name).filter_by(id=id).first()
+        try:
+            query = self.session.query(table_name).filter_by(id=id).first()
 
-        if not query:
-            raise ValueError("Id not found")
+            if not query:
+                raise ValueError("Id not found")
 
-        return query
+            return query
+        except Exception:
+            raise ExceptionCustomPresentation(
+                status_code=500,
+                type="Server Error",
+                message="Repository get by id error",
+            )
 
     async def get_by_id_dict(self, table_name: type[T], id: int) -> dict:
 
@@ -55,20 +76,31 @@ class RepositoryInfra(RepositoryProtocolUseCase):
                 return query.to_dict()
             return query.__dict__
         except Exception:
-            raise ValueError("Id not found")
+            raise ExceptionCustomPresentation(
+                status_code=500,
+                type="Server Error",
+                message="Repository get by id error",
+            )
 
     async def create(
         self,
         table_name: type[T],
         data: dict,
     ) -> dict:
+        try:
+            query = table_name(**data)
+            self.session.add(query)
+            self.session.commit()
+            self.session.refresh(query)
+            del query.__dict__["_sa_instance_state"]
+            return query.__dict__
 
-        query = table_name(**data)
-        self.session.add(query)
-        self.session.commit()
-        self.session.refresh(query)
-        del query.__dict__["_sa_instance_state"]
-        return query.__dict__
+        except Exception:
+            raise ExceptionCustomPresentation(
+                status_code=500,
+                type="Server Error",
+                message="Repository create error",
+            )
 
     async def create_with_related(
         self,
@@ -98,8 +130,12 @@ class RepositoryInfra(RepositoryProtocolUseCase):
                 return entity.to_dict()
             return entity.__dict__
 
-        except Exception as e:
-            raise e
+        except Exception:
+            raise ExceptionCustomPresentation(
+                status_code=500,
+                type="Server Error",
+                message="Repository create error",
+            )
 
     async def update_with_related(
         self,
@@ -136,8 +172,12 @@ class RepositoryInfra(RepositoryProtocolUseCase):
 
             del query.__dict__["_sa_instance_state"]
             return query.__dict__
-        except Exception as e:
-            raise e
+        except Exception:
+            raise ExceptionCustomPresentation(
+                status_code=500,
+                type="Server Error",
+                message="Repository update error",
+            )
 
     async def update(self, table_name: type[T], data: dict, id: int) -> dict:
         try:
@@ -154,27 +194,43 @@ class RepositoryInfra(RepositoryProtocolUseCase):
 
             del query.__dict__["_sa_instance_state"]
             return query.__dict__
-        except ValueError:
-            raise ValueError("Id not found")
+        except Exception:
+            raise ExceptionCustomPresentation(
+                status_code=500,
+                type="Server Error",
+                message="Repository update error",
+            )
 
     async def delete(self, table_name: type[T], id: int) -> None:
         try:
             query = await self.get_by_id_instace(table_name, id)
             self.session.delete(query)
             self.session.commit()
-        except ValueError:
-            raise ValueError("Id not found")
+        except Exception:
+            raise ExceptionCustomPresentation(
+                status_code=500,
+                type="Server Error",
+                message="Repository delete error",
+            )
 
     async def delete_with_related(
         self, table_name: type[T], id: int, related_table: list[OrmRelatedTable]
     ) -> None:
-        query = await self.get_by_id_instace(table_name, id)
+        try:
+            query = await self.get_by_id_instace(table_name, id)
 
-        for related in related_table:
-            related_instances = getattr(query, related["table_name"].__tablename__)
+            for related in related_table:
+                related_instances = getattr(query, related["table_name"].__tablename__)
 
-            for related_instance in related_instances:
-                self.session.delete(related_instance)
+                for related_instance in related_instances:
+                    self.session.delete(related_instance)
 
-        self.session.delete(query)
-        self.session.commit()
+            self.session.delete(query)
+            self.session.commit()
+
+        except Exception:
+            raise ExceptionCustomPresentation(
+                status_code=500,
+                type="Server Error",
+                message="Repository delete error",
+            )

@@ -11,6 +11,9 @@ from src.infra.pydantic.validator_schema_infra import ValidatorSchemaInfra
 from src.presentation.controllers.projects.projects_controller_presentation import (
     ProjectsControllerPresentation,
 )
+from src.presentation.errors.exception_custom_errors_presentation import (
+    ExceptionCustomPresentation,
+)
 from src.presentation.types.http_types_presentation import HttpRequest, HttpResponse
 from src.presentation.validators.schemas.project_create_schema_presentation import (
     ProjectCreateSchema,
@@ -154,12 +157,16 @@ class TestProjectControllerPresentation:
         assert body[0] == except_error
 
     async def test_execute_with_files_form_data_exception(self):
-        use_case.execute.side_effect = Exception("Error Server")
+        use_case.execute.side_effect = ExceptionCustomPresentation(
+            status_code=500, type="Error Server", message="Error UseCase Server"
+        )
         response = await controller.execute_with_files_form_data(request, file)
 
         assert response.status_code == 500
-        assert isinstance(response.body["Error"], Exception)
-        assert str(response.body["Error"]) == "Error Server"
+        assert response.body == {
+            "message": "Error UseCase Server",
+            "type": "Error Server",
+        }
 
     async def test_execute_with_files_form_data_success(self):
         use_case.execute.side_effect = lambda *args, **kwargs: HttpResponse(
@@ -171,12 +178,16 @@ class TestProjectControllerPresentation:
         assert response.body == {"message": "Success"}
 
     async def test_execute_json_exception(self):
-        use_case.execute.side_effect = Exception("Error Server")
+        use_case.execute.side_effect = ExceptionCustomPresentation(
+            status_code=500, type="Error Server", message="Error UseCase Server"
+        )
         response = await controller.execute_json(request)
 
         assert response.status_code == 500
-        assert isinstance(response.body["Error"], Exception)
-        assert str(response.body["Error"]) == "Error Server"
+        assert response.body == {
+            "message": "Error UseCase Server",
+            "type": "Error Server",
+        }
 
     async def test_execute_json_success(self):
         use_case.execute.side_effect = lambda *args, **kwargs: HttpResponse(
