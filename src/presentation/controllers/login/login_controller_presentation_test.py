@@ -2,7 +2,7 @@ import copy
 from unittest.mock import Mock
 
 import pytest
-from src.domain.protocols.login_protocols_domain import LoginDomainProtocol
+from src.domain.protocols.use_case_protocol_domain import DomainProtocol
 from src.infra.pydantic.validator_schema_infra import ValidatorSchemaInfra
 from src.presentation.controllers.login.login_controller_presentation import (
     LoginControllerPresentation,
@@ -18,7 +18,7 @@ from src.presentation.validators.schemas.login_schema_presentation import (
 
 validator = ValidatorSchemaInfra()
 schema = LoginSchemaPresentation
-use_case = Mock(spec_set=LoginDomainProtocol)
+use_case = Mock(spec_set=DomainProtocol)
 
 controller = LoginControllerPresentation(
     validator=validator, schema=schema, use_case=use_case

@@ -22,7 +22,7 @@ def error_schema(errors: str) -> List[ErrorSchema]:
             continue
 
         if "[" in error:
-            message, teste = error.split("[")
+            message, teste, *rest = error.split("[")
             error_dict: ErrorSchema = {
                 "field": field,
                 "type": teste.split(",")[0].split("=")[1],

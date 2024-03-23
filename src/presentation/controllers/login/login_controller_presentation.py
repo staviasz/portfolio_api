@@ -2,7 +2,7 @@ from typing_extensions import TypeVar, Type, List
 from fastapi import UploadFile
 from pydantic import BaseModel
 from src.domain.models.login_models_domain import LoginModelDomain
-from src.domain.protocols.login_protocols_domain import LoginDomainProtocol
+from src.domain.protocols.use_case_protocol_domain import DomainProtocol
 from src.presentation.contracts.controller_contract_presentation import Controller
 from src.presentation.errors.exception_custom_errors_presentation import (
     ExceptionCustomPresentation,
@@ -22,7 +22,7 @@ class LoginControllerPresentation(Controller):
         self,
         validator: ValidationSchemaProtocolUseCase,
         schema: Type[TSchema],
-        use_case: LoginDomainProtocol,
+        use_case: DomainProtocol,
     ):
         self.validator = validator
         self.schema = schema

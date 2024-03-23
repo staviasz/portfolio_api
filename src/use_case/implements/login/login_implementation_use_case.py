@@ -1,6 +1,8 @@
 from src.domain.models.login_models_domain import LoginModelDomain
 from src.domain.models.user_models_domain import UserModelDomain
-from src.domain.protocols.login_protocols_domain import LoginDomainProtocol
+
+# from src.domain.protocols.login_protocols_domain import LoginDomainProtocol
+from src.domain.protocols.use_case_protocol_domain import DomainProtocol
 from src.infra.repository.models.user_model_repository_infra import User
 from src.presentation.errors.exception_custom_errors_presentation import (
     ExceptionCustomPresentation,
@@ -15,7 +17,7 @@ from src.use_case.protocols.repository.repository_protocol_use_case import (
 )
 
 
-class loginUseCase(LoginDomainProtocol):
+class loginUseCase(DomainProtocol):
 
     def __init__(
         self,

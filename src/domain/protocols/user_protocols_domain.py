@@ -6,12 +6,13 @@ from src.domain.models.user_models_domain import (
     UserModelCreateDomain,
     UserModelUpdateDomain,
 )
+from src.domain.protocols.use_case_protocol_domain import DomainProtocol
 from src.presentation.types.http_types_presentation import HttpResponse
 
 T = TypeVar("T", bound=BaseModel)
 
 
-class UserDomainProtocol(Protocol):
+class UserDomainProtocol(DomainProtocol, Protocol):
     async def add_user(self, user: UserModelCreateDomain) -> HttpResponse: ...
 
     async def edit_user(

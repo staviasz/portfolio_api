@@ -11,4 +11,4 @@ class HttpRequest(BaseModel):
 
 class HttpResponse(BaseModel):
     status_code: int
-    body: dict | list[dict]
+    body: dict | list
