@@ -1,4 +1,4 @@
-from typing_extensions import Protocol, TypeVar, Type
+from typing_extensions import Protocol, TypeVar, Type, Optional
 
 from sqlalchemy.orm import DeclarativeBase
 
@@ -19,7 +19,10 @@ T = TypeVar("T", bound=DeclarativeBase)
 class RepositoryProtocolUseCase(
     GetByEmailRepositoryProtocolUseCase, GetByIdRepositoryProtocolUseCase, Protocol
 ):
-    async def get_all(self, table_name: Type[T]) -> list[dict]: ...
+
+    async def get_all(
+        self, table_name: Type[T], filters: Optional[dict] = None
+    ) -> list[dict]: ...
 
     async def create(
         self,

@@ -1,4 +1,4 @@
-from typing_extensions import Type, TypeVar
+from typing_extensions import Type, TypeVar, Optional
 from sqlalchemy.orm import Session, DeclarativeBase
 from src.presentation.errors.exception_custom_errors_presentation import (
     ExceptionCustomPresentation,
@@ -18,9 +18,17 @@ class RepositoryInfra(RepositoryProtocolUseCase):
     def __init__(self, session: Session) -> None:
         self.session = session
 
-    async def get_all(self, table_name: Type[T]) -> list[dict]:
+    async def get_all(
+        self, table_name: Type[T], filters: Optional[dict] = None
+    ) -> list[dict]:
         try:
-            query_all = self.session.query(table_name).all()
+            query = self.session.query(table_name)
+
+            if filters:
+                for key, value in filters.items():
+                    query = query.filter(getattr(table_name, key) == value)
+
+            query_all = query.all()
 
             response = [
                 row.to_dict() if hasattr(row, "to_dict") else row.__dict__

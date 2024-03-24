@@ -1,0 +1,97 @@
+from src.domain.models.post_models_domain import (
+    PostDomain,
+    PostModelCreateDomain,
+    PostModelUpdateDomain,
+)
+from src.domain.models.user_models_domain import UserModelDomain
+from src.domain.protocols.post_protocols_domain import PostDomainProtocol
+from src.infra.repository.models.post_model_repository_infra import Post
+from src.presentation.errors.exception_custom_errors_presentation import (
+    ExceptionCustomPresentation,
+)
+from src.presentation.types.http_types_presentation import HttpResponse
+from src.use_case.protocols.repository.repository_protocol_use_case import (
+    RepositoryProtocolUseCase,
+)
+
+
+class PostUseCase(PostDomainProtocol):
+    def __init__(self, repository: RepositoryProtocolUseCase) -> None:
+        self.repository = repository
+
+    async def create_post(
+        self, data: PostModelCreateDomain, user: UserModelDomain
+    ) -> HttpResponse:
+        try:
+            new_data = {**data.model_dump(), "user_id": user.id}
+
+            reponse = await self.repository.create(table_name=Post, data=new_data)
+
+            result = PostDomain(**reponse).model_dump()
+
+            return HttpResponse(status_code=201, body=result)
+
+        except ExceptionCustomPresentation as error:
+            return HttpResponse(status_code=error.status_code, body=error.body)
+
+    async def update_post(
+        self, data: PostModelUpdateDomain, user: UserModelDomain
+    ) -> HttpResponse:
+        try:
+            post = await self.repository.get_by_id_dict(table_name=Post, id=data.id)
+
+            if not post or post["user_id"] != user.id:
+                return HttpResponse(status_code=404, body={"message": "Post not found"})
+
+            new_data = {**data.model_dump()}
+            del new_data["id"]
+
+            reponse = await self.repository.update(
+                table_name=Post, data=new_data, id=data.id
+            )
+
+            result = PostDomain(**reponse).model_dump()
+
+            return HttpResponse(status_code=200, body=result)
+
+        except ExceptionCustomPresentation as error:
+            return HttpResponse(status_code=error.status_code, body=error.body)
+
+    async def get_post(self, post_id: int) -> HttpResponse:
+        try:
+            post = await self.repository.get_by_id_dict(table_name=Post, id=post_id)
+
+            if not post:
+                return HttpResponse(status_code=404, body={"message": "Post not found"})
+
+            result = PostDomain(**post).model_dump()
+
+            return HttpResponse(status_code=200, body=result)
+
+        except ExceptionCustomPresentation as error:
+            return HttpResponse(status_code=error.status_code, body=error.body)
+
+    async def delete_post(self, post_id: int, user: UserModelDomain) -> HttpResponse:
+        try:
+            post = await self.repository.get_by_id_dict(table_name=Post, id=post_id)
+
+            if not post or post["user_id"] != user.id:
+                return HttpResponse(status_code=404, body={"message": "Post not found"})
+
+            await self.repository.delete(table_name=Post, id=post_id)
+
+            return HttpResponse(status_code=204, body={})
+
+        except ExceptionCustomPresentation as error:
+            return HttpResponse(status_code=error.status_code, body=error.body)
+
+    async def get_all_posts(self, filters: dict | None) -> HttpResponse:
+        try:
+            posts = await self.repository.get_all(table_name=Post, filters=filters)
+
+            response = [PostDomain(**post).model_dump() for post in posts]
+
+            return HttpResponse(status_code=200, body=response)
+
+        except ExceptionCustomPresentation as error:
+            return HttpResponse(status_code=error.status_code, body=error.body)

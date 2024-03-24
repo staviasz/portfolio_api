@@ -19,3 +19,4 @@ class User(Base):
     projects = relationship(
         "Project", secondary="user_project_association", back_populates="users"
     )
+    posts = relationship("Post", back_populates="user")
