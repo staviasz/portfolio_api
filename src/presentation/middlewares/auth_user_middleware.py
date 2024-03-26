@@ -1,3 +1,4 @@
+from src.infra.repository.models.user_model_repository_infra import User
 from src.presentation.contracts.middleware_contract_presentation import (
     MiddlewareContract,
 )
@@ -9,12 +10,20 @@ from src.presentation.types.http_types_presentation import HttpRequest
 from src.use_case.protocols.jwt.decode_jwt_protocol_use_case import (
     JwtDecodeProtocolUseCase,
 )
+from src.use_case.protocols.repository.repository_protocol_use_case import (
+    RepositoryProtocolUseCase,
+)
 
 
 class AuthMiddleware(MiddlewareContract):
 
-    def __init__(self, autenticator: JwtDecodeProtocolUseCase):
+    def __init__(
+        self,
+        autenticator: JwtDecodeProtocolUseCase,
+        repository: RepositoryProtocolUseCase,
+    ):
         self.autenticator = autenticator
+        self.repository = repository
 
     async def execute(self, request: HttpRequest) -> dict | None:
         try:
@@ -26,6 +35,13 @@ class AuthMiddleware(MiddlewareContract):
                 )
 
             payload = await self.autenticator.decode(token)
+
+            user = await self.repository.get_by_id_dict(table_name=User, id=payload.id)
+
+            if not user:
+                raise ExceptionCustomPresentation(
+                    status_code=401, type="unauthorized", message="User not found"
+                )
 
             return payload.model_all_dump()
 

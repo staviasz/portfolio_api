@@ -1,7 +1,6 @@
 from src.domain.models.post_models_domain import (
     PostDomain,
-    PostModelCreateDomain,
-    PostModelUpdateDomain,
+    PostModelDomain,
 )
 from src.domain.models.user_models_domain import UserModelDomain
 from src.domain.protocols.post_protocols_domain import PostDomainProtocol
@@ -20,7 +19,7 @@ class PostUseCase(PostDomainProtocol):
         self.repository = repository
 
     async def create_post(
-        self, data: PostModelCreateDomain, user: UserModelDomain
+        self, data: PostModelDomain, user: UserModelDomain
     ) -> HttpResponse:
         try:
             new_data = {**data.model_dump(), "user_id": user.id}
@@ -35,19 +34,18 @@ class PostUseCase(PostDomainProtocol):
             return HttpResponse(status_code=error.status_code, body=error.body)
 
     async def update_post(
-        self, data: PostModelUpdateDomain, user: UserModelDomain
+        self, data: PostModelDomain, user: UserModelDomain, post_id: int
     ) -> HttpResponse:
         try:
-            post = await self.repository.get_by_id_dict(table_name=Post, id=data.id)
+            post = await self.repository.get_by_id_dict(table_name=Post, id=post_id)
 
             if not post or post["user_id"] != user.id:
                 return HttpResponse(status_code=404, body={"message": "Post not found"})
 
-            new_data = {**data.model_dump()}
-            del new_data["id"]
+            print("teste")
 
             reponse = await self.repository.update(
-                table_name=Post, data=new_data, id=data.id
+                table_name=Post, data=data.model_dump(), id=post_id
             )
 
             result = PostDomain(**reponse).model_dump()

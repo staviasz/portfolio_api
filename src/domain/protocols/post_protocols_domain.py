@@ -1,9 +1,6 @@
 from typing_extensions import Literal, TypeVar, Protocol
 from pydantic import BaseModel
-from src.domain.models.post_models_domain import (
-    PostModelCreateDomain,
-    PostModelUpdateDomain,
-)
+from src.domain.models.post_models_domain import PostModelDomain
 from src.domain.models.user_models_domain import UserModelDomain
 
 from src.presentation.types.http_types_presentation import HttpResponse
@@ -14,11 +11,11 @@ TSchema = TypeVar("TSchema", bound=BaseModel)
 class PostDomainProtocol(Protocol):
 
     async def create_post(
-        self, data: PostModelCreateDomain, user: UserModelDomain
+        self, data: PostModelDomain, user: UserModelDomain
     ) -> HttpResponse: ...
 
     async def update_post(
-        self, data: PostModelUpdateDomain, user: UserModelDomain
+        self, data: PostModelDomain, user: UserModelDomain, post_id: int
     ) -> HttpResponse: ...
 
     async def get_post(self, post_id: int) -> HttpResponse: ...
@@ -38,11 +35,12 @@ class PostDomainProtocol(Protocol):
         filters: dict | None = None,
     ) -> HttpResponse:
         try:
-            if data and isinstance(data, PostModelCreateDomain) and user:
-                return await self.create_post(data=data, user=user)
 
-            elif data and isinstance(data, PostModelUpdateDomain) and user and post_id:
-                return await self.update_post(data=data, user=user)
+            if data and isinstance(data, PostModelDomain) and user and post_id:
+                return await self.update_post(data=data, user=user, post_id=post_id)
+
+            elif data and isinstance(data, PostModelDomain) and user:
+                return await self.create_post(data=data, user=user)
 
             elif post_id and user and method == "DELETE":
                 return await self.delete_post(post_id=post_id, user=user)

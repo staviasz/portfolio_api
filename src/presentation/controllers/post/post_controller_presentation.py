@@ -44,13 +44,16 @@ class PostControllerPresentation(Controller):
                 request.query.get("filters") if request and request.query else None
             )
 
-            if not request.body:
+            if (method == "POST" or method == "PUT") and not request.body:
                 return HttpResponse(
                     status_code=400,
                     body={"message": "Request body must be provided"},
                 )
-
-            schema_validator = await self.validator.validate(request.body, self.schema)
+            schema_validator = (
+                await self.validator.validate(request.body, self.schema)
+                if request and request.body
+                else None
+            )
             if isinstance(schema_validator, list):
                 return HttpResponse(status_code=422, body=schema_validator)
 

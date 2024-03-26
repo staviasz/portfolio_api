@@ -1,12 +1,12 @@
 import pytest
-from src.domain.models.post_models_domain import PostModelCreateDomain
+from src.domain.models.post_models_domain import PostModelDomain
 from src.presentation.errors.exception_custom_errors_presentation import (
     ExceptionCustomPresentation,
 )
 from src.use_case.implements.post.tests.setup import repository, use_case, data, user
 
 
-new_data = PostModelCreateDomain(**data)
+new_data = PostModelDomain(**data)
 
 
 @pytest.mark.asyncio

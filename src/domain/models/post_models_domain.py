@@ -1,4 +1,3 @@
-from typing_extensions import Optional
 from pydantic import BaseModel
 
 
@@ -15,10 +14,10 @@ class PostDomain(BaseModel):
         }
 
 
-class PostModelCreateDomain(BaseModel):
+class PostModelDomain(BaseModel):
     html: str
 
-
-class PostModelUpdateDomain(BaseModel):
-    id: int
-    html: Optional[str]
+    def model_dump(self):
+        return {
+            "html": self.html,
+        }

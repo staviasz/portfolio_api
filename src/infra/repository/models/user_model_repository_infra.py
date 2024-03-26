@@ -17,6 +17,10 @@ class User(Base):
     created_at = Column(DateTime, default=func.now())
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
     projects = relationship(
-        "Project", secondary="user_project_association", back_populates="users"
+        "Project",
+        secondary="user_project_association",
+        back_populates="users",
+        cascade="all, delete-orphan",
+        single_parent=True,
     )
-    posts = relationship("Post", back_populates="user")
+    posts = relationship("Post", back_populates="user", cascade="all, delete-orphan")
