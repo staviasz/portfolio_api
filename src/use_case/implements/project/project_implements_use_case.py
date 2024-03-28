@@ -46,11 +46,13 @@ class ProjectUseCase(ProjectDomainProtocol):
                         "table_name": Image,
                         "field_in_principal_table": "image",
                         "data": [{"image_url": image_url} for image_url in images_urls],
+                        "field_forengein_key": "project_id",
                     },
                     {
                         "table_name": UserProjectAssociation,
                         "field_in_principal_table": "users",
                         "data": [{"user_id": user.id}],
+                        "field_forengein_key": "project_id",
                     },
                 ],
             )
@@ -84,6 +86,7 @@ class ProjectUseCase(ProjectDomainProtocol):
                             "table_name": Image,
                             "field_in_principal_table": "image",
                             "data": [{"image_url": image} for image in images_urls],
+                            "field_forengein_key": "project_id",
                         }
                     ],
                     id=project_id,

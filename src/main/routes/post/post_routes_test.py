@@ -10,6 +10,8 @@ login = {
 }
 data = {
     "html": "<h1>Testando</h1>" * 20,
+    "images_urls": ["https://i.ibb.co/2Jn8w8j/testando.jpg"],
+    "name": "post test",
 }
 
 token = {"Authorization": "Bearer "}
@@ -21,12 +23,15 @@ class TestPostRoutes:
         response = client.post("/login", json=login)
         token["Authorization"] = "Bearer " + response.json()["token"]
         response = client.post("/post", headers=token, json=data)
+        print("response", response.json())
 
         assert response.status_code == 201
         assert response.json() == {
             "id": 1,
             "html": data["html"],
             "user_id": 1,
+            "name": data["name"],
+            "images_urls": data["images_urls"],
         }
 
     async def test_update_post(self):
@@ -40,6 +45,8 @@ class TestPostRoutes:
             "id": 1,
             "html": data["html"],
             "user_id": 1,
+            "name": data["name"],
+            "images_urls": data["images_urls"],
         }
 
     async def test_get_post(self):
@@ -51,6 +58,8 @@ class TestPostRoutes:
             "id": 1,
             "html": data["html"],
             "user_id": 1,
+            "name": data["name"],
+            "images_urls": data["images_urls"],
         }
 
     async def test_get_all_posts(self):
@@ -62,6 +71,8 @@ class TestPostRoutes:
                 "id": 1,
                 "html": data["html"],
                 "user_id": 1,
+                "name": data["name"],
+                "images_urls": data["images_urls"],
             },
         ]
 

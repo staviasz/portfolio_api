@@ -1,4 +1,5 @@
 from sqlalchemy import (
+    CheckConstraint,
     Column,
     ForeignKey,
     ForeignKeyConstraint,
@@ -14,10 +15,16 @@ class Image(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     image_url = Column(Text, nullable=False)
-    project_id = Column(Integer, ForeignKey("projects.id"), nullable=False)
+    project_id = Column(Integer, ForeignKey("projects.id"), nullable=True)
+    post_id = Column(Integer, ForeignKey("posts.id"), nullable=True)
 
     project = relationship("Project", back_populates="image")
+    posts = relationship("Post", back_populates="image")
 
     __table_args__ = (
         ForeignKeyConstraint(["project_id"], ["projects.id"], name="fk_project_id"),
+        ForeignKeyConstraint(["post_id"], ["posts.id"], name="fk_post_id"),
+        CheckConstraint(
+            "(project_id IS NOT NULL OR post_id IS NOT NULL) AND (project_id IS NULL OR post_id IS NULL)"
+        ),
     )

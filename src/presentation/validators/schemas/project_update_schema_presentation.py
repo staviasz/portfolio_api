@@ -13,5 +13,5 @@ class ProjectUpdateSchema(ProjectModelUpdateDomain):
     @root_validator(pre=True)
     def validate_all_fields_are_none(cls, values):
         if all(value is None for value in values.values()):
-            raise ValueError("Todos os campos são nulos.")
+            raise ValueError("All fields are null.")
         return values

@@ -11,3 +11,4 @@ class OrmRelatedTable(TypedDict, Generic[TOrm]):
 
 class OrmRelatedTableData(OrmRelatedTable):
     data: list
+    field_forengein_key: str

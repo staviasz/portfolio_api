@@ -10,7 +10,12 @@ from src.use_case.protocols.repository.repository_protocol_use_case import (
 repository = Mock(spec_set=RepositoryProtocolUseCase)
 use_case = PostUseCase(repository=repository)
 
-data = {"id": 1, "html": "<>post html</>"}
+data = {
+    "id": 1,
+    "name": "name Post",
+    "html": "<>post html</>",
+    "images_urls": ["http://url1/", "http://url2/"],
+}
 user = UserModelDomain(
     id=1,
     name="name",

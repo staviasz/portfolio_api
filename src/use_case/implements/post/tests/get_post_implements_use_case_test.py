@@ -30,10 +30,18 @@ class TestGetPostUseCase:
     async def test_get_post_use_case_success(self):
         repository.get_by_id_dict.side_effect = lambda *args, **kwargs: {
             "id": 1,
+            "name": data["name"],
             "html": data["html"],
             "user_id": 1,
+            "images_urls": data["images_urls"],
         }
         result = await use_case.execute(post_id=data["id"], method="GET", user=user)
 
         assert result.status_code == 200
-        assert result.body == {"id": 1, "html": data["html"], "user_id": 1}
+        assert result.body == {
+            "id": 1,
+            "name": data["name"],
+            "html": data["html"],
+            "user_id": 1,
+            "images_urls": data["images_urls"],
+        }

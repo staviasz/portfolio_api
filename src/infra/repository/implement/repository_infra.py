@@ -120,14 +120,17 @@ class RepositoryInfra(RepositoryProtocolUseCase):
             entity = table_name(**data)
             self.session.add(entity)
             self.session.flush()
-            project_id = entity.__dict__["id"]
+            entity_id: int = entity.__dict__["id"]
 
             for related_data in related_table:
                 field_in_principal_table = related_data["field_in_principal_table"]
                 related_table_class = related_data["table_name"]
                 related_data_to_insert = related_data["data"]
                 for related_data_item in related_data_to_insert:
-                    new_data = {**related_data_item, "project_id": project_id}
+                    new_data = {
+                        **related_data_item,
+                        related_data["field_forengein_key"]: entity_id,
+                    }
                     related_entity = related_table_class(**new_data)
                     setattr(related_entity, field_in_principal_table, entity)
                     self.session.add(related_entity)
@@ -138,11 +141,12 @@ class RepositoryInfra(RepositoryProtocolUseCase):
                 return entity.to_dict()
             return entity.__dict__
 
-        except Exception:
+        except Exception as e:
+            print(e)
             raise ExceptionCustomPresentation(
                 status_code=500,
                 type="Server Error",
-                message="Repository create error",
+                message="Repository create related error",
             )
 
     async def update_with_related(
@@ -214,7 +218,8 @@ class RepositoryInfra(RepositoryProtocolUseCase):
             query = await self.get_by_id_instace(table_name, id)
             self.session.delete(query)
             self.session.commit()
-        except Exception:
+        except Exception as e:
+            print(e)
             raise ExceptionCustomPresentation(
                 status_code=500,
                 type="Server Error",

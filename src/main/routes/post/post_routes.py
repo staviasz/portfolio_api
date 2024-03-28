@@ -32,7 +32,7 @@ class PostRoutes:
                     body=await request.json(),
                 )
                 adapt = await adapt_router(
-                    controller=make_post_controller(),
+                    controller=make_post_controller(action="create"),
                     request=new_request,
                     middlewares={"auth": make_auth_middleware()},
                 )
