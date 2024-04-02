@@ -46,7 +46,7 @@ class PostUseCase(PostDomainProtocol):
                 )
             else:
                 reponse = await self.repository.create(table_name=Post, data=new_data)
-            print("reponse", reponse)
+
             result = PostDomain(**reponse).model_dump()
 
             return HttpResponse(status_code=201, body=result)

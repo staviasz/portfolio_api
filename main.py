@@ -3,6 +3,7 @@ from fastapi import APIRouter, FastAPI
 from src.configs.pydantic.pydantic_env_settings_config import PydanticEnv
 from src.infra.repository.run_migrations_repository_infra import run_migrations
 
+from src.infra.repository.seed.techs import techs_seed
 from src.main.routes.login.login_routes import LoginRoutes
 from src.main.routes.post.post_routes import PostRoutes
 from src.main.routes.project.project_routes import ProjectRoutes
@@ -11,8 +12,17 @@ from src.main.routes.user.user_routes import UserRoutes
 
 
 run_migrations()
-
 app = FastAPI()
+
+
+async def execute_seeds():
+    await techs_seed()
+
+
+@app.on_event("startup")
+async def startup_event():
+    await execute_seeds()
+
 
 user_router = UserRoutes(APIRouter(), "/user")
 user_router.routes_setup()

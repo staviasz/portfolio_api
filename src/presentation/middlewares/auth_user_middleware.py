@@ -1,3 +1,4 @@
+from src.domain.models.user_models_domain import UserModelDomain
 from src.infra.repository.models.user_model_repository_infra import User
 from src.presentation.contracts.middleware_contract_presentation import (
     MiddlewareContract,
@@ -35,6 +36,7 @@ class AuthMiddleware(MiddlewareContract):
                 )
 
             payload = await self.autenticator.decode(token)
+            print(payload)
 
             user = await self.repository.get_by_id_dict(table_name=User, id=payload.id)
 
@@ -43,9 +45,10 @@ class AuthMiddleware(MiddlewareContract):
                     status_code=401, type="unauthorized", message="User not found"
                 )
 
-            return payload.model_all_dump()
+            return UserModelDomain(**user).model_all_dump()
 
-        except Exception:
+        except Exception as error:
+            print(error)
             raise ExceptionCustomPresentation(
                 status_code=401, type="unauthorized", message="Invalid token"
             )

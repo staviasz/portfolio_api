@@ -16,6 +16,8 @@ from src.infra.repository.models import (
     Image,
     Post,
     UserProjectAssociation,
+    Tech,
+    UsertechAssociation,
 )
 
 

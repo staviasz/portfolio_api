@@ -11,6 +11,7 @@ class UserUpdateSchema(UserModelUpdateDomain):
     description: Optional[str] = Field(None, min_length=50)
     contact_description: Optional[str] = Field(None, min_length=50)
     image_upload: Optional[ImageUpload] = Field(None)
+    techs: Optional[list[int]] = Field(None)
 
     @root_validator(pre=True)
     def validate_all_fields_are_none(cls, values):

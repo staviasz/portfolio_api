@@ -52,8 +52,8 @@ class TestUserRoutes:
         assert response.json() == {"message": "Invalid token", "type": "unauthorized"}
 
     async def test_update_success(self):
+        data["name"] = "name Update"
         new_data = data.copy()
-        new_data["name"] = "name Update"
         response = client.put("/user", data=new_data, headers=token)
 
         expect_img_url = (
@@ -85,6 +85,9 @@ class TestUserRoutes:
 
         del except_response["password"]
         except_response["id"] = 1
+
+        print(response.json())
+        print(except_response)
 
         assert response.status_code == 200
         assert expect_img_url in body_img

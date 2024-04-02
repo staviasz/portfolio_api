@@ -31,4 +31,3 @@ USER appuser
 
 CMD ["sh","-c", "/usr/local/bin/wait_for_db.sh db 5432 python main.py --reload"]
 
-

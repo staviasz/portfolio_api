@@ -25,6 +25,7 @@ class UserRoutes:
             password: str = Form(...),
             description: str = Form(...),
             contact_description: str = Form(...),
+            techs: list[int] = Form(None),
         ) -> Response:
 
             try:
@@ -35,6 +36,7 @@ class UserRoutes:
                         "password": password,
                         "description": description,
                         "contact_description": contact_description,
+                        "techs": techs,
                     }
                 )
 
@@ -92,6 +94,7 @@ class UserRoutes:
             password: str = Form(None),
             description: str = Form(None),
             contact_description: str = Form(None),
+            techs: list[int] = Form(None),
         ) -> Response:
 
             try:
@@ -106,6 +109,7 @@ class UserRoutes:
                         "password": password,
                         "description": description,
                         "contact_description": contact_description,
+                        "techs": techs,
                     },
                 )
 

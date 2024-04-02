@@ -24,3 +24,23 @@ class User(Base):
         single_parent=True,
     )
     posts = relationship("Post", back_populates="user", cascade="all, delete-orphan")
+    techs = relationship(
+        "Tech",
+        secondary="user_tech_association",
+        back_populates="users",
+        passive_deletes=True,
+    )
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "email": self.email,
+            "password": self.password,
+            "description": self.description,
+            "contact_description": self.contact_description,
+            "image_url": self.image_url,
+            "created_at": self.created_at,
+            "updated_at": self.updated_at,
+            "techs": [tech.name for tech in self.techs],
+        }

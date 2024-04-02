@@ -192,6 +192,22 @@ class TestUserControllerPresentation:
         assert isinstance(body, list)
         assert body[0] == except_error
 
+    async def test_execute_with_files_form_data_techs_is_valid(self):
+        new_request = copy.deepcopy(request)
+        new_request.body["techs"] = ["invalidTech"]
+        response = await controller.execute_with_files_form_data(new_request, file)
+
+        body = response.body
+        except_error = {
+            "field": "techs.0",
+            "type": "int_parsing",
+            "message": "Input should be a valid integer, unable to parse string as an integer",
+        }
+
+        assert response.status_code == 422
+        assert isinstance(body, list)
+        assert body[0] == except_error
+
     async def test_execute_with_files_form_data_exception(self):
         use_case.execute.side_effect = ExceptionCustomPresentation(
             status_code=500, type="Error Server", message="Error UseCase Server"

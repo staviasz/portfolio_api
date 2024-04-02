@@ -1,3 +1,4 @@
+import copy
 import pytest
 from src.domain.models.user_models_domain import UserModelCreateDomain
 
@@ -74,6 +75,38 @@ class TestAddUserImplementsUseCase:
         del new_user["password"]
         assert response.status_code == 201
         assert response.body == new_user
+
+    async def test_create_with_techs(self):
+        new_data = copy.deepcopy(data_add_user)
+        new_data.techs = [1, 2]
+
+        new_user = data_user.copy()
+        new_user["image_url"] = "image_url"
+        new_user["id"] = 1
+        new_user["techs"] = ["react", "typescript"]
+        del new_user["image_upload"]
+
+        repository.create_with_related.side_effect = lambda *args, **kwargs: new_user
+        response = await use_case.execute(data_user=new_data)
+
+        del new_user["password"]
+        assert response.status_code == 201
+        assert response.body == new_user
+
+    async def test_create_with_techs_get_by_id_dict_exception(self):
+        new_data = copy.deepcopy(data_add_user)
+        new_data.techs = [1, 2]
+
+        repository.get_by_id_dict.side_effect = ExceptionCustomPresentation(
+            type="Error Server", status_code=500, message="Error Repository Server"
+        )
+        response = await use_case.execute(data_user=new_data)
+
+        assert response.status_code == 500
+        assert response.body == {
+            "message": "Error Repository Server",
+            "type": "Error Server",
+        }
 
     async def test_create_exception(self):
         repository.create.side_effect = ExceptionCustomPresentation(

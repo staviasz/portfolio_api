@@ -1,9 +1,11 @@
+import asyncio
 from src.domain.models.user_models_domain import (
     UserModelCreateDomain,
     UserModelDomain,
     UserModelUpdateDomain,
 )
 from src.domain.protocols.user_protocols_domain import UserDomainProtocol
+from src.infra.repository.models.tech_model_repository_infra import Tech
 from src.infra.repository.models.user_model_repository_infra import User
 from src.presentation.errors.exception_custom_errors_presentation import (
     ExceptionCustomPresentation,
@@ -15,6 +17,9 @@ from src.use_case.protocols.bycript.bycript_protocol_use_case import (
 )
 from src.use_case.protocols.repository.repository_protocol_use_case import (
     RepositoryProtocolUseCase,
+)
+from src.infra.repository.models.user_tech_model_repository_infra import (
+    UsertechAssociation,
 )
 
 
@@ -45,7 +50,28 @@ class UserUseCase(UserDomainProtocol):
                 file=user.image_upload, folder="users"
             )
 
-            new_user = await self.repository.create(table_name=User, data=data)
+            new_user = None
+            if user.techs:
+                del data["techs"]
+                exists_techs = [
+                    self.repository.get_by_id_dict(table_name=Tech, id=tech_id)
+                    for tech_id in user.techs
+                ]
+                await asyncio.gather(*exists_techs)
+                new_user = await self.repository.create_with_related(
+                    table_name=User,
+                    data=data,
+                    related_table=[
+                        {
+                            "table_name": UsertechAssociation,
+                            "field_in_principal_table": "users",
+                            "data": [{"tech_id": tech} for tech in user.techs],
+                            "field_forengein_key": "user_id",
+                        },
+                    ],
+                )
+            else:
+                new_user = await self.repository.create(table_name=User, data=data)
 
             response: UserModelDomain = UserModelDomain(**new_user)
 
@@ -70,16 +96,40 @@ class UserUseCase(UserDomainProtocol):
                     )
 
             if data_user.image_upload:
+                del data["image_upload"]
                 data["image_url"] = await self.bucket.update_upload(
                     last_url_file=user["image_url"],
                     file=data_user.image_upload,
                     folder="users",
                 )
 
-            update_user = await self.repository.update(
-                table_name=User, data=data, id=user["id"]
-            )
+            update_user = None
+            if data_user.techs:
+                del data["techs"]
 
+                exists_techs = [
+                    self.repository.get_by_id_dict(table_name=Tech, id=tech_id)
+                    for tech_id in data_user.techs
+                ]
+                await asyncio.gather(*exists_techs)
+
+                update_user = await self.repository.update_with_related(
+                    table_name=User,
+                    data=data,
+                    related_table=[
+                        {
+                            "table_name": UsertechAssociation,
+                            "field_in_principal_table": "techs",
+                            "data": [{"tech_id": tech} for tech in data_user.techs],
+                            "field_forengein_key": "user_id",
+                        },
+                    ],
+                    id=user["id"],
+                )
+            else:
+                update_user = await self.repository.update(
+                    table_name=User, data=data, id=user["id"]
+                )
             response: UserModelDomain = UserModelDomain(**update_user)
 
             return HttpResponse(status_code=200, body=response.model_dump())
@@ -100,6 +150,7 @@ class UserUseCase(UserDomainProtocol):
 
     async def get_user(self, user: dict) -> HttpResponse:
         try:
+            print(user)
             response = UserModelDomain(**user)
 
             return HttpResponse(status_code=200, body=response.model_dump())

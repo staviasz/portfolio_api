@@ -1,4 +1,5 @@
 import re
+from typing import Optional
 from pydantic import Field, EmailStr, field_validator
 from src.domain.models.user_models_domain import ImageUpload, UserModelCreateDomain
 
@@ -10,6 +11,7 @@ class UserCreateSchema(UserModelCreateDomain):
     description: str = Field(..., min_length=50)
     contact_description: str = Field(..., min_length=50)
     image_upload: ImageUpload
+    techs: Optional[list[int]] = Field(None)
 
     @field_validator("name")
     def validate_name(cls, value: str):
