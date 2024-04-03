@@ -14,7 +14,12 @@ class Project(Base):
     link_code = Column(Text, nullable=False)
     created_at = Column(DateTime, default=func.now())
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
-    image = relationship("Image", back_populates="project")
+    image = relationship(
+        "Image",
+        back_populates="project",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
     users = relationship(
         "User", secondary="user_project_association", back_populates="projects"
     )
@@ -28,5 +33,5 @@ class Project(Base):
             "link_code": self.link_code,
             "created_at": self.created_at,
             "updated_at": self.updated_at,
-            "images_urls": [image.image_url for image in self.image],
+            "images_urls": [image.image_url for image in self.image if image],
         }

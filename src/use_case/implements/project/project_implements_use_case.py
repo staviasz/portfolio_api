@@ -128,13 +128,8 @@ class ProjectUseCase(ProjectDomainProtocol):
 
     async def delete_project(self, project_id: int) -> HttpResponse:
         try:
-            await self.repository.delete_with_related(
-                id=project_id,
-                table_name=Project,
-                related_table=[
-                    {"field_in_principal_table": "image", "table_name": Image}
-                ],
-            )
+            project = await self.repository.delete(table_name=Project, id=project_id)
+            await self.bucket.delete_upload(last_url_file=project["images_urls"])
             return HttpResponse(status_code=204, body={})
 
         except ExceptionCustomPresentation as error:

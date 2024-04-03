@@ -11,14 +11,18 @@ from src.presentation.errors.exception_custom_errors_presentation import (
     ExceptionCustomPresentation,
 )
 from src.presentation.types.http_types_presentation import HttpResponse
+from src.use_case.protocols.aws.aws_protocol_use_case import AwsProtocolUseCase
 from src.use_case.protocols.repository.repository_protocol_use_case import (
     RepositoryProtocolUseCase,
 )
 
 
 class PostUseCase(PostDomainProtocol):
-    def __init__(self, repository: RepositoryProtocolUseCase) -> None:
+    def __init__(
+        self, repository: RepositoryProtocolUseCase, bucket: AwsProtocolUseCase
+    ) -> None:
         self.repository = repository
+        self.bucket = bucket
 
     async def create_post(
         self, data: PostCreateModelDomain, user: UserModelDomain
@@ -96,6 +100,9 @@ class PostUseCase(PostDomainProtocol):
                 return HttpResponse(status_code=404, body={"message": "Post not found"})
 
             await self.repository.delete(table_name=Post, id=post_id)
+
+            if post["images_urls"]:
+                await self.bucket.delete_upload(last_url_file=post["images_urls"])
 
             return HttpResponse(status_code=204, body={})
 

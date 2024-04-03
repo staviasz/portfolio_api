@@ -1,5 +1,7 @@
 from typing_extensions import Literal
 from src.configs.repository.client_repository_config import SessionLocal
+from src.configs.aws.client_aws_config import s3_client
+from src.infra.aws.aws_infra import AwsInfra
 from src.infra.pydantic.validator_schema_infra import ValidatorSchemaInfra
 from src.infra.repository.implement.repository_infra import RepositoryInfra
 from src.presentation.contracts.controller_contract_presentation import Controller
@@ -19,7 +21,8 @@ def make_post_controller(
     action: Literal["create", "update"] | None = None
 ) -> Controller:
     repository = RepositoryInfra(SessionLocal())
-    use_case = PostUseCase(repository=repository)
+    bucket = AwsInfra(s3_client)
+    use_case = PostUseCase(repository=repository, bucket=bucket)
     validator = ValidatorSchemaInfra()
     schema = (
         PostCreateSchemaPresentation

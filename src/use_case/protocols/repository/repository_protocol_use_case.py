@@ -4,7 +4,6 @@ from sqlalchemy.orm import DeclarativeBase
 
 from src.presentation.types.orm_related_table_data_type_presentation import (
     OrmRelatedTableData,
-    OrmRelatedTable,
 )
 from src.use_case.protocols.repository.get_by_email_repository_protocol_use_case import (
     GetByEmailRepositoryProtocolUseCase,
@@ -47,8 +46,4 @@ class RepositoryProtocolUseCase(
         id: int,
     ) -> dict: ...
 
-    async def delete(self, table_name: Type[T], id: int) -> None: ...
-
-    async def delete_with_related(
-        self, table_name: Type[T], id: int, related_table: list[OrmRelatedTable]
-    ) -> None: ...
+    async def delete(self, table_name: Type[T], id: int) -> dict: ...

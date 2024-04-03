@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 1e681158d00b
+Revision ID: 1aa7be9d7852
 Revises: 
-Create Date: 2024-04-01 20:25:50.208282
+Create Date: 2024-04-03 15:08:55.679151
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '1e681158d00b'
+revision: str = '1aa7be9d7852'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -85,10 +85,10 @@ def upgrade() -> None:
     sa.Column('project_id', sa.Integer(), nullable=True),
     sa.Column('post_id', sa.Integer(), nullable=True),
     sa.CheckConstraint('(project_id IS NOT NULL OR post_id IS NOT NULL) AND (project_id IS NULL OR post_id IS NULL)'),
-    sa.ForeignKeyConstraint(['post_id'], ['posts.id'], ),
     sa.ForeignKeyConstraint(['post_id'], ['posts.id'], name='fk_post_id'),
-    sa.ForeignKeyConstraint(['project_id'], ['projects.id'], ),
+    sa.ForeignKeyConstraint(['post_id'], ['posts.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['project_id'], ['projects.id'], name='fk_project_id'),
+    sa.ForeignKeyConstraint(['project_id'], ['projects.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
     # ### end Alembic commands ###

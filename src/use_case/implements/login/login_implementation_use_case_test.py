@@ -44,7 +44,6 @@ class TestLoginUseCase:
         )
 
         response = await use_case.execute(data)
-        print(response)
 
         assert response.status_code == 500
         assert response.body == {

@@ -38,11 +38,11 @@ class PostDomainProtocol(Protocol):
         filters: dict | None = None,
     ) -> HttpResponse:
         try:
+
             if data and isinstance(data, PostUpdatesModelDomain) and user and post_id:
                 return await self.update_post(data=data, user=user, post_id=post_id)
 
             elif data and isinstance(data, PostCreateModelDomain) and user:
-                print("entrou no create")
                 return await self.create_post(data=data, user=user)
 
             elif post_id and user and method == "DELETE":

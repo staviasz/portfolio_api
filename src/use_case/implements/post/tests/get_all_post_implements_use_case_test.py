@@ -23,8 +23,6 @@ class TestGetAllPostUseCase:
         repository.get_all.side_effect = lambda *args, **kwargs: [
             {**data, "user_id": 1}
         ]
-        print([{**data, "user_id": 1}])
         response = await use_case.execute(user=user, method="GET")
-        print(response.body)
         assert response.status_code == 200
         assert response.body == [{**data, "user_id": 1}]

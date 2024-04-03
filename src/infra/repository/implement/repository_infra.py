@@ -4,7 +4,6 @@ from src.presentation.errors.exception_custom_errors_presentation import (
     ExceptionCustomPresentation,
 )
 from src.presentation.types.orm_related_table_data_type_presentation import (
-    OrmRelatedTable,
     OrmRelatedTableData,
 )
 from src.use_case.protocols.repository.repository_protocol_use_case import (
@@ -51,8 +50,7 @@ class RepositoryInfra(RepositoryProtocolUseCase):
                 return None
 
             return query.__dict__
-        except Exception as e:
-            print(e)
+        except Exception:
             raise ExceptionCustomPresentation(
                 status_code=500,
                 type="Server Error",
@@ -77,7 +75,6 @@ class RepositoryInfra(RepositoryProtocolUseCase):
     async def get_by_id_dict(self, table_name: type[T], id: int) -> dict:
 
         try:
-            print(table_name, id)
             query = self.session.query(table_name).filter_by(id=id).first()
 
             if not query:
@@ -89,8 +86,11 @@ class RepositoryInfra(RepositoryProtocolUseCase):
             if hasattr(query, "to_dict"):
                 return query.to_dict()
             return query.__dict__
-        except Exception as e:
-            print("error", e)
+
+        except ExceptionCustomPresentation as error:
+            raise error
+
+        except Exception:
             raise ExceptionCustomPresentation(
                 status_code=500,
                 type="Server Error",
@@ -199,8 +199,7 @@ class RepositoryInfra(RepositoryProtocolUseCase):
 
             del query.__dict__["_sa_instance_state"]
             return query.__dict__
-        except Exception as e:
-            print("error", e)
+        except Exception:
             raise ExceptionCustomPresentation(
                 status_code=500,
                 type="Server Error",
@@ -229,37 +228,24 @@ class RepositoryInfra(RepositoryProtocolUseCase):
                 message="Repository update error",
             )
 
-    async def delete(self, table_name: type[T], id: int) -> None:
+    async def delete(self, table_name: type[T], id: int) -> dict:
         try:
             query = await self.get_by_id_instace(table_name, id)
             self.session.delete(query)
+
+            response = None
+            if hasattr(query, "to_dict"):
+                response = query.to_dict()
+            else:
+                response = query.__dict__
+                del response.__dict__["_sa_instance_state"]
+
             self.session.commit()
-        except Exception as e:
-            print(e)
-            raise ExceptionCustomPresentation(
-                status_code=500,
-                type="Server Error",
-                message="Repository delete error",
-            )
-
-    async def delete_with_related(
-        self, table_name: type[T], id: int, related_table: list[OrmRelatedTable]
-    ) -> None:
-        try:
-            query = await self.get_by_id_instace(table_name, id)
-
-            for related in related_table:
-                related_instances = getattr(query, related["table_name"].__tablename__)
-
-                for related_instance in related_instances:
-                    self.session.delete(related_instance)
-
-            self.session.delete(query)
-            self.session.commit()
+            return response
 
         except Exception:
             raise ExceptionCustomPresentation(
                 status_code=500,
                 type="Server Error",
-                message="Repository delete related error",
+                message="Repository delete error",
             )

@@ -150,7 +150,6 @@ class UserUseCase(UserDomainProtocol):
 
     async def get_user(self, user: dict) -> HttpResponse:
         try:
-            print(user)
             response = UserModelDomain(**user)
 
             return HttpResponse(status_code=200, body=response.model_dump())
@@ -160,7 +159,8 @@ class UserUseCase(UserDomainProtocol):
 
     async def delete_user(self, user_id: int) -> HttpResponse:
         try:
-            await self.repository.delete(table_name=User, id=user_id)
+            user = await self.repository.delete(table_name=User, id=user_id)
+            await self.bucket.delete_upload(last_url_file=user["image_url"])
 
             return HttpResponse(status_code=204, body={})
 

@@ -36,7 +36,6 @@ class AuthMiddleware(MiddlewareContract):
                 )
 
             payload = await self.autenticator.decode(token)
-            print(payload)
 
             user = await self.repository.get_by_id_dict(table_name=User, id=payload.id)
 
@@ -47,8 +46,7 @@ class AuthMiddleware(MiddlewareContract):
 
             return UserModelDomain(**user).model_all_dump()
 
-        except Exception as error:
-            print(error)
+        except Exception:
             raise ExceptionCustomPresentation(
                 status_code=401, type="unauthorized", message="Invalid token"
             )

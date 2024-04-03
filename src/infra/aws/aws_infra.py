@@ -67,12 +67,12 @@ class AwsInfra(AwsProtocolUseCase):
             if isinstance(last_url_file, list):
                 for url_file in last_url_file:
                     self.client.delete_object(
-                        Bucket=PydanticEnv().bucket_name, Key=url_file
+                        Bucket=PydanticEnv().bucket_name, Key=url_file.split(".com/")[1]
                     )
                 return
 
             self.client.delete_object(
-                Bucket=PydanticEnv().bucket_name, Key=last_url_file
+                Bucket=PydanticEnv().bucket_name, Key=last_url_file.split(".com/")[1]
             )
             return
 

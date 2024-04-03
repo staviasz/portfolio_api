@@ -42,5 +42,5 @@ class User(Base):
             "image_url": self.image_url,
             "created_at": self.created_at,
             "updated_at": self.updated_at,
-            "techs": [tech.name for tech in self.techs],
+            "techs": [tech.name for tech in self.techs if tech],
         }

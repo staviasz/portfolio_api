@@ -138,7 +138,6 @@ class TestUploadImageController:
         response = await controller.execute_with_files_form_data(
             request=data, files=file
         )
-        print(response)
 
         assert response.status_code == 200
         assert response.body == ["image_url"]

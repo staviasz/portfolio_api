@@ -47,7 +47,6 @@ class TestEditProjectUseCase:
             status_code=500, type="Error Server", message="Error Repository Server"
         )
         response = await use_case.execute(data=new_data, user=user, project_id=1)
-        print(response.body)
 
         assert response.status_code == 500
         assert response.body == {

@@ -15,8 +15,10 @@ class Image(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     image_url = Column(Text, nullable=False)
-    project_id = Column(Integer, ForeignKey("projects.id"), nullable=True)
-    post_id = Column(Integer, ForeignKey("posts.id"), nullable=True)
+    project_id = Column(
+        Integer, ForeignKey("projects.id", ondelete="CASCADE"), nullable=True
+    )
+    post_id = Column(Integer, ForeignKey("posts.id", ondelete="CASCADE"), nullable=True)
 
     project = relationship("Project", back_populates="image")
     posts = relationship("Post", back_populates="image")

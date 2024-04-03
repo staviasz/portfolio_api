@@ -23,5 +23,5 @@ class Post(Base):
             "html": self.html,
             "name": self.name,
             "user_id": self.user_id,
-            "images_urls": [image.image_url for image in self.image],
+            "images_urls": [image.image_url for image in self.image if image],
         }

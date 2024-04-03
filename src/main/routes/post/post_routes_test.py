@@ -10,7 +10,7 @@ login = {
 }
 data = {
     "html": "<h1>Testando</h1>" * 20,
-    "images_urls": ["https://i.ibb.co/2Jn8w8j/testando.jpg"],
+    "images_urls": ["https://i.ibb.co/2Jn8w8j.com/testando.jpg"],
     "name": "post test",
 }
 
@@ -23,7 +23,6 @@ class TestPostRoutes:
         response = client.post("/login", json=login)
         token["Authorization"] = "Bearer " + response.json()["token"]
         response = client.post("/post", headers=token, json=data)
-        print("response", response.json())
 
         assert response.status_code == 201
         assert response.json() == {
@@ -38,7 +37,6 @@ class TestPostRoutes:
         data["html"] = "<h1>Testando Update</h1>" * 20
 
         response = client.put("/post/1", headers=token, json=data)
-        print(response.json())
 
         assert response.status_code == 200
         assert response.json() == {
@@ -51,7 +49,6 @@ class TestPostRoutes:
 
     async def test_get_post(self):
         response = client.get("/post/1", headers=token)
-        print(response.json())
 
         assert response.status_code == 200
         assert response.json() == {
@@ -78,7 +75,6 @@ class TestPostRoutes:
 
     async def test_get_all_posts_with_wrong_filter(self):
         response = client.get("/post?user_id=2", headers=token)
-        print(response.json())
 
         assert response.status_code == 200
         assert response.json() == []

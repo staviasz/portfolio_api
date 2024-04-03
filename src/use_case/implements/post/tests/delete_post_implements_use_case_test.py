@@ -29,6 +29,10 @@ class TestDeletePostUseCase:
         }
 
     async def test_delete_post_use_case_success(self):
+        repository.get_by_id_dict.side_effect = lambda *args, **kwargs: {
+            "images_urls": ["image_url"],
+            "user_id": 1,
+        }
         repository.delete.side_effect = lambda *args, **kwargs: {
             "id": 1,
             "html": data["html"],

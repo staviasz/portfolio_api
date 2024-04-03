@@ -86,9 +86,6 @@ class TestUserRoutes:
         del except_response["password"]
         except_response["id"] = 1
 
-        print(response.json())
-        print(except_response)
-
         assert response.status_code == 200
         assert expect_img_url in body_img
         assert except_response == body
@@ -121,6 +118,5 @@ class TestUserRoutes:
 
     async def test_delete_user(self):
         response = client.delete("/user", headers=token)
-        print(response.json())
         assert response.status_code == 204
         assert response.json() == {}
