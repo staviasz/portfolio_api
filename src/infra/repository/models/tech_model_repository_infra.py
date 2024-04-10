@@ -14,3 +14,6 @@ class Tech(Base):
     users = relationship(
         "User", secondary="user_tech_association", back_populates="techs"
     )
+    projects = relationship(
+        "Project", secondary="project_tech_association", back_populates="techs"
+    )

@@ -26,6 +26,7 @@ class ProjectRoutes:
             description: str = Form(...),
             link_deploy: HttpUrl | None = Form(None),
             link_code: HttpUrl = Form(...),
+            techs: list[int] = Form(None),
         ) -> Response:
             try:
                 new_request = HttpRequest(
@@ -37,6 +38,7 @@ class ProjectRoutes:
                         "description": description,
                         "link_deploy": link_deploy,
                         "link_code": link_code,
+                        "techs": techs,
                     },
                 )
 
@@ -85,6 +87,7 @@ class ProjectRoutes:
             description: str | None = Form(None),
             link_deploy: HttpUrl | None = Form(None),
             link_code: HttpUrl | None = Form(None),
+            techs: list[int] = Form(None),
         ) -> Response:
             try:
                 new_request = HttpRequest(
@@ -98,6 +101,7 @@ class ProjectRoutes:
                         "description": description,
                         "link_deploy": link_deploy,
                         "link_code": link_code,
+                        "techs": techs,
                     },
                 )
 

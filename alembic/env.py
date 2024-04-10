@@ -18,6 +18,7 @@ from src.infra.repository.models import (
     UserProjectAssociation,
     Tech,
     UsertechAssociation,
+    ProjecttechAssociation,
 )
 
 

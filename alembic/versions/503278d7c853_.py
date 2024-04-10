@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 1aa7be9d7852
+Revision ID: 503278d7c853
 Revises: 
-Create Date: 2024-04-03 15:08:55.679151
+Create Date: 2024-04-09 21:26:22.495773
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '1aa7be9d7852'
+revision: str = '503278d7c853'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -61,6 +61,15 @@ def upgrade() -> None:
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], name='fk_user_id'),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_table('project_tech_association',
+    sa.Column('project_id', sa.Integer(), nullable=False),
+    sa.Column('tech_id', sa.Integer(), nullable=False),
+    sa.Column('created_at', sa.DateTime(), nullable=True),
+    sa.Column('updated_at', sa.DateTime(), nullable=True),
+    sa.ForeignKeyConstraint(['project_id'], ['projects.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['tech_id'], ['techs.id'], ),
+    sa.PrimaryKeyConstraint('project_id', 'tech_id')
+    )
     op.create_table('user_project_association',
     sa.Column('user_id', sa.Integer(), nullable=False),
     sa.Column('project_id', sa.Integer(), nullable=False),
@@ -99,6 +108,7 @@ def downgrade() -> None:
     op.drop_table('image')
     op.drop_table('user_tech_association')
     op.drop_table('user_project_association')
+    op.drop_table('project_tech_association')
     op.drop_table('posts')
     op.drop_index(op.f('ix_users_id'), table_name='users')
     op.drop_table('users')

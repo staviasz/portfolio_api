@@ -58,7 +58,6 @@ class TestEditProjectUseCase:
         _data = copy.deepcopy(new_data)
         _data.images_uploads = None
         repository_return = {**_data.model_dump(), "images_urls": ["image_url"]}
-        del repository_return["images_uploads"]
         repository_return["id"] = 1
 
         repository.update.side_effect = lambda *args, **kwargs: repository_return

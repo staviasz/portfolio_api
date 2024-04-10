@@ -32,7 +32,6 @@ async def test_add_user():
     response = client.post("/user", data=data, files=file)
 
     body = response.json()
-    print(body)
     body_img = body["image_url"]
     del body["image_url"]
 

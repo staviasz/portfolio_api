@@ -11,7 +11,12 @@ class Post(Base):
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
 
     user = relationship("User", back_populates="posts")
-    image = relationship("Image", back_populates="posts", cascade="all, delete-orphan")
+    image = relationship(
+        "Image",
+        back_populates="posts",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
 
     __table_args__ = (
         ForeignKeyConstraint(["user_id"], ["users.id"], name="fk_user_id"),
