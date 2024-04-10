@@ -243,7 +243,8 @@ class RepositoryInfra(RepositoryProtocolUseCase):
             self.session.commit()
             return response
 
-        except Exception:
+        except Exception as e:
+            print(e)
             raise ExceptionCustomPresentation(
                 status_code=500,
                 type="Server Error",

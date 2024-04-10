@@ -7,3 +7,4 @@ from .user_project_model_repository_infra import UserProjectAssociation
 from .user_tech_model_repository_infra import UsertechAssociation
 from .tech_model_repository_infra import Tech
 from .project_tech_model_repository_infra import ProjecttechAssociation
+from .post_tech_model_repository_infra import PostTechAssociation

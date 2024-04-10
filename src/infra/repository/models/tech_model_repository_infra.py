@@ -17,3 +17,6 @@ class Tech(Base):
     projects = relationship(
         "Project", secondary="project_tech_association", back_populates="techs"
     )
+    posts = relationship(
+        "Post", secondary="post_tech_association", back_populates="techs"
+    )

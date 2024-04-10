@@ -9,6 +9,7 @@ class PostCreateSchemaPresentation(PostCreateModelDomain):
     html: str = Field(..., min_length=50)
     images_urls: Optional[list[HttpUrl]] = Field(None)
     name: str = Field(..., min_length=5, max_length=255)
+    techs: Optional[list[int]] = Field(None)
 
     @field_validator("html")
     def validate_descrption_is_html(cls, value: str):

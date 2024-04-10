@@ -168,6 +168,34 @@ class TestPostController:
             }
         ]
 
+    async def test_execute_json_with_techs_is_not_list(self):
+        new_body = {**body, "techs": "1"}
+        request = HttpRequest(body=new_body, params=params, headers=method, query=query)
+        response = await controller.execute_json(request=request)
+
+        assert response.status_code == 422
+        assert response.body == [
+            {
+                "field": "techs",
+                "type": "list_type",
+                "message": "Input should be a valid list",
+            }
+        ]
+
+    async def test_execute_json_with_techs_is_not_url_str(self):
+        new_body = {**body, "techs": ["Nan"]}
+        request = HttpRequest(body=new_body, params=params, headers=method, query=query)
+        response = await controller.execute_json(request=request)
+
+        assert response.status_code == 422
+        assert response.body == [
+            {
+                "field": "techs.0",
+                "type": "int_parsing",
+                "message": "Input should be a valid integer, unable to parse string as an integer",
+            }
+        ]
+
     async def test_execute_json_exception(self):
         use_case.execute.side_effect = ExceptionCustomPresentation(
             status_code=500, type="Error Server", message="Error UseCase Server"

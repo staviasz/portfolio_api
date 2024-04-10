@@ -9,6 +9,7 @@ class PostUpdateSchemaPresentation(PostUpdatesModelDomain):
     html: Optional[str] = Field(None, min_length=50)
     images_urls: Optional[list[HttpUrl]] = Field(None)
     name: Optional[str] = Field(None, min_length=5, max_length=255)
+    techs: Optional[list[int]] = Field(None)
 
     @root_validator(pre=True)
     def validate_all_fields_are_none(cls, values):

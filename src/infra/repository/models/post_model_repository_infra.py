@@ -15,6 +15,13 @@ class Post(Base):
         "Image",
         back_populates="posts",
         cascade="all, delete-orphan",
+        single_parent=True,
+    )
+
+    techs = relationship(
+        "Tech",
+        secondary="post_tech_association",
+        back_populates="posts",
         passive_deletes=True,
     )
 
@@ -29,4 +36,5 @@ class Post(Base):
             "name": self.name,
             "user_id": self.user_id,
             "images_urls": [image.image_url for image in self.image if image],
+            "techs": [tech.name for tech in self.techs if tech],
         }

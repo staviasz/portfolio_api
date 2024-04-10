@@ -23,6 +23,7 @@ class TestPostRoutes:
         response = client.post("/login", json=login)
         token["Authorization"] = "Bearer " + response.json()["token"]
         response = client.post("/post", headers=token, json=data)
+        print(response.json())
 
         assert response.status_code == 201
         assert response.json() == {
