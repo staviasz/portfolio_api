@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Request, Response
 from fastapi.responses import JSONResponse
+from pydantic import BaseModel
 
 from src.adapters.rotes.route_adapter import adapt_router
 from src.factory.login.make_login_controller import make_login_controller
@@ -9,13 +10,24 @@ from src.presentation.errors.exception_custom_errors_presentation import (
 from src.presentation.types.http_types_presentation import HttpRequest
 
 
+class LoginResponse(BaseModel):
+    token: str
+
+
 class LoginRoutes:
     def __init__(self, router: APIRouter):
         self._router = router
 
     def routes_setup(self):
-        @self._router.post("/login")
+        @self._router.post("/login", tags=["Login"], response_model=LoginResponse)
         async def login(request: Request) -> Response:
+            """
+            Args:\n
+                {
+                    email: str
+                    password: str
+                }
+            """
 
             try:
 

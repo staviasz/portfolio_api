@@ -3,6 +3,7 @@ from fastapi import APIRouter, Header, Query, Request, Response
 from fastapi.responses import JSONResponse
 
 from src.adapters.rotes.route_adapter import adapt_router
+from src.domain.models.post_models_domain import PostDomain
 from src.factory.middlewares.auth_middleware_factory import make_auth_middleware
 from src.factory.post.make_post_controller_faxctory import make_post_controller
 from src.presentation.errors.exception_custom_errors_presentation import (
@@ -18,10 +19,19 @@ class PostRoutes:
         self.prefix = prefix
 
     def routes_setup(self):
-        @self._router.post(f"{self.prefix}")
+        @self._router.post(f"{self.prefix}", tags=["Post"], response_model=PostDomain)
         async def create_post(
             request: Request, authorization: str = Header(...)
         ) -> Response:
+            """
+            Args:\n
+                {
+                    name: str
+                    html: str
+                    images_urls: Optional[list[HttpUrl]] = None
+                    techs: Optional[list[int]] = None
+                }
+            """
             try:
 
                 new_request = HttpRequest(
@@ -44,10 +54,21 @@ class PostRoutes:
             except Exception as error:
                 return JSONResponse(status_code=500, content={"message": error.args})
 
-        @self._router.put(f"{self.prefix}/{{post_id}}")
+        @self._router.put(
+            f"{self.prefix}/{{post_id}}", tags=["Post"], response_model=PostDomain
+        )
         async def update_post(
             request: Request, post_id: int, authorization: str = Header(...)
         ) -> Response:
+            """
+            Args:\n
+                {
+                    name: Optional[str]
+                    html: Optional[str]
+                    images_urls: Optional[list[HttpUrl]] = None
+                    techs: Optional[list[int]] = None
+                }
+            """
             try:
                 new_request = HttpRequest(
                     headers={
@@ -68,7 +89,9 @@ class PostRoutes:
             except ExceptionCustomPresentation as error:
                 return JSONResponse(status_code=error.status_code, content=error.body)
 
-        @self._router.get(f"{self.prefix}/{{post_id}}")
+        @self._router.get(
+            f"{self.prefix}/{{post_id}}", tags=["Post"], response_model=PostDomain
+        )
         async def get_post(
             post_id: int, request: Request, authorization: str = Header(...)
         ) -> Response:
@@ -91,7 +114,7 @@ class PostRoutes:
             except ExceptionCustomPresentation as error:
                 return JSONResponse(status_code=error.status_code, content=error.body)
 
-        @self._router.get(f"{self.prefix}")
+        @self._router.get(f"{self.prefix}", tags=["Post"], response_model=PostDomain)
         async def get_posts(
             request: Request,
             authorization: str = Header(...),
@@ -116,7 +139,9 @@ class PostRoutes:
             except ExceptionCustomPresentation as error:
                 return JSONResponse(status_code=error.status_code, content=error.body)
 
-        @self._router.delete(f"{self.prefix}/{{post_id}}")
+        @self._router.delete(
+            f"{self.prefix}/{{post_id}}", tags=["Post"], response_model=PostDomain
+        )
         async def delete_post(
             post_id: int, request: Request, authorization: str = Header(...)
         ) -> Response:

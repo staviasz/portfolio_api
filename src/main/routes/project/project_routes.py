@@ -3,6 +3,7 @@ from fastapi.responses import JSONResponse
 from pydantic import HttpUrl
 
 from src.adapters.rotes.route_adapter import adapt_router
+from src.domain.models.project_models_domain import ProjectModelDomain
 from src.factory.middlewares.auth_middleware_factory import make_auth_middleware
 from src.factory.project.make_project_controller_factory import make_project_controller
 from src.presentation.errors.exception_custom_errors_presentation import (
@@ -18,7 +19,9 @@ class ProjectRoutes:
         self.prefix = prefix
 
     def routes_setup(self):
-        @self._router.post(f"{self.prefix}")
+        @self._router.post(
+            f"{self.prefix}", tags=["Project"], response_model=ProjectModelDomain
+        )
         async def create_project(
             authorization: str = Header(...),
             files: list[UploadFile] = File(...),
@@ -28,6 +31,17 @@ class ProjectRoutes:
             link_code: HttpUrl = Form(...),
             techs: list[int] = Form(None),
         ) -> Response:
+            """
+            Args:\n
+                {
+                    name: str
+                    description: str
+                    link_deploy: Optional[HttpUrl] = None
+                    link_code: HttpUrl
+                    images_uploads: list[ImageUpload]
+                    techs: Optional[list[int]] = None
+                }
+            """
             try:
                 new_request = HttpRequest(
                     headers={
@@ -55,7 +69,11 @@ class ProjectRoutes:
             except ExceptionCustomPresentation as error:
                 return JSONResponse(status_code=error.status_code, content=error.body)
 
-        @self._router.get(f"{self.prefix}/{{project_id}}")
+        @self._router.get(
+            f"{self.prefix}/{{project_id}}",
+            tags=["Project"],
+            response_model=ProjectModelDomain,
+        )
         async def get_projects(
             project_id: int, request: Request, authorization: str = Header(...)
         ) -> Response:
@@ -77,7 +95,11 @@ class ProjectRoutes:
             except ExceptionCustomPresentation as error:
                 return JSONResponse(status_code=error.status_code, content=error.body)
 
-        @self._router.put(f"{self.prefix}/{{project_id}}")
+        @self._router.put(
+            f"{self.prefix}/{{project_id}}",
+            tags=["Project"],
+            response_model=ProjectModelDomain,
+        )
         async def update_project(
             project_id: int,
             request: Request,
@@ -89,6 +111,17 @@ class ProjectRoutes:
             link_code: HttpUrl | None = Form(None),
             techs: list[int] = Form(None),
         ) -> Response:
+            """
+            Args:\n
+                {
+                    name: Optional[str] = None
+                    description: Optional[str] = None
+                    link_deploy: Optional[HttpUrl] = None
+                    link_code: Optional[HttpUrl] = None
+                    images_uploads: Optional[list[ImageUpload]] = None
+                    techs: Optional[list[int]] = None
+                }
+            """
             try:
                 new_request = HttpRequest(
                     params={"project_id": project_id},
@@ -117,7 +150,9 @@ class ProjectRoutes:
             except ExceptionCustomPresentation as error:
                 return JSONResponse(status_code=error.status_code, content=error.body)
 
-        @self._router.get(f"{self.prefix}")
+        @self._router.get(
+            f"{self.prefix}", tags=["Project"], response_model=ProjectModelDomain
+        )
         async def get_all_projects(request: Request, authorization: str = Header(...)):
             try:
 
@@ -137,7 +172,11 @@ class ProjectRoutes:
             except ExceptionCustomPresentation as error:
                 return JSONResponse(status_code=error.status_code, content=error.body)
 
-        @self._router.delete(f"{self.prefix}/{{project_id}}")
+        @self._router.delete(
+            f"{self.prefix}/{{project_id}}",
+            tags=["Project"],
+            response_model=ProjectModelDomain,
+        )
         async def delete_project(
             project_id: int, request: Request, authorization: str = Header(...)
         ) -> Response:

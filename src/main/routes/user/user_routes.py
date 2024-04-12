@@ -2,6 +2,7 @@ from fastapi import APIRouter, File, Form, Header, Request, Response, UploadFile
 from fastapi.responses import JSONResponse
 
 from src.adapters.rotes.route_adapter import adapt_router
+from src.domain.models.user_models_domain import UserModelDomain
 from src.factory.middlewares.auth_middleware_factory import make_auth_middleware
 from src.factory.user.user_controller_factory import make_user_controller
 from src.presentation.errors.exception_custom_errors_presentation import (
@@ -17,7 +18,11 @@ class UserRoutes:
         self.prefix = prefix
 
     def routes_setup(self):
-        @self._router.post(f"{self.prefix}")
+        @self._router.post(
+            f"{self.prefix}",
+            tags=["Users"],
+            response_model=UserModelDomain,
+        )
         async def add_user(
             file: UploadFile = File(...),
             name: str = Form(...),
@@ -49,7 +54,9 @@ class UserRoutes:
             except ExceptionCustomPresentation as error:
                 return JSONResponse(status_code=error.status_code, content=error.body)
 
-        @self._router.get(f"{self.prefix}/profile")
+        @self._router.get(
+            f"{self.prefix}/profile", tags=["Users"], response_model=UserModelDomain
+        )
         async def get_user(req: Request, authorization: str = Header(...)):
             try:
                 request = HttpRequest(
@@ -67,7 +74,9 @@ class UserRoutes:
             except ExceptionCustomPresentation as error:
                 return JSONResponse(status_code=error.status_code, content=error.body)
 
-        @self._router.get(f"{self.prefix}")
+        @self._router.get(
+            f"{self.prefix}", tags=["Users"], response_model=list[UserModelDomain]
+        )
         async def get_all_user(authorization: str = Header(...)):
             try:
 
@@ -85,7 +94,9 @@ class UserRoutes:
             except ExceptionCustomPresentation as error:
                 return JSONResponse(status_code=error.status_code, content=error.body)
 
-        @self._router.put(f"{self.prefix}")
+        @self._router.put(
+            f"{self.prefix}", tags=["Users"], response_model=UserModelDomain
+        )
         async def update_user(
             authorization: str = Header(...),
             file: UploadFile = File(None),
@@ -126,7 +137,7 @@ class UserRoutes:
             except ExceptionCustomPresentation as error:
                 return JSONResponse(status_code=error.status_code, content=error.body)
 
-        @self._router.delete(f"{self.prefix}")
+        @self._router.delete(f"{self.prefix}", tags=["Users"])
         async def delete_user(req: Request, authorization: str = Header(...)):
 
             try:

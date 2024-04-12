@@ -18,7 +18,7 @@ class UploadImageRoutes:
 
     def routes_setup(self):
 
-        @self._router.post(f"{self._prefix}")
+        @self._router.post(f"{self._prefix}", tags=["Upload Image"])
         async def upload_image(
             authorization: str = Header(...),
             folder_name: str = Form(...),
