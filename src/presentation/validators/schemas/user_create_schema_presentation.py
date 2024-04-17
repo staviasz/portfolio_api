@@ -15,7 +15,7 @@ class UserCreateSchema(UserModelCreateDomain):
 
     @field_validator("name")
     def validate_name(cls, value: str):
-        if re.match(r"^[a-zA-ZÀ-ÿ]+$", value) is None:
+        if re.match(r"^[a-zA-ZÀ-ÿ ]+$", value) is None:
             raise ValueError("Name must be only letters")
         return value
 
