@@ -1,0 +1,23 @@
+FROM python:3.11-alpine
+
+WORKDIR /app
+
+ENV PYTHONDONTWRITEBYTECODE=1
+
+COPY alembic.ini .
+
+RUN addgroup -g 1000 -S appgroup \
+  && adduser -u 1000 -S appuser -G appgroup \
+  && chown appuser:appgroup alembic.ini \
+  && chmod 777 alembic.ini 
+
+COPY requirements-dev.txt .
+
+RUN pip install --no-cache-dir -r requirements-dev.txt
+
+COPY . .
+
+USER appuser
+
+CMD ["python main.py"]
+
