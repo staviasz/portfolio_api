@@ -145,3 +145,8 @@ async def techs_seed():
             session.add(Tech(**add))
 
     session.commit()
+    session.close()
+
+
+if __name__ == "__main__":
+    asyncio.run(techs_seed())

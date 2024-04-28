@@ -1,9 +1,7 @@
 import uvicorn
 from fastapi import APIRouter, FastAPI
 from src.configs.pydantic.pydantic_env_settings_config import PydanticEnv
-from src.infra.repository.run_migrations_repository_infra import run_migrations
 
-from src.infra.repository.seed.techs import techs_seed
 from src.main.routes.login.login_routes import LoginRoutes
 from src.main.routes.post.post_routes import PostRoutes
 from src.main.routes.project.project_routes import ProjectRoutes
@@ -12,7 +10,6 @@ from src.main.routes.upload_image.upload_image_routes import UploadImageRoutes
 from src.main.routes.user.user_routes import UserRoutes
 
 
-run_migrations()
 app = FastAPI(
     redoc_url="/redocs",
     title="Portfolio Api",
@@ -24,15 +21,6 @@ app = FastAPI(
     endpoints disponíveis e comece a construir seu portfólio digital hoje mesmo!""",
     version="1.0.0",
 )
-
-
-async def execute_seeds():
-    await techs_seed()
-
-
-@app.on_event("startup")
-async def startup_event():
-    await execute_seeds()
 
 
 user_router = UserRoutes(APIRouter(), "/user")
@@ -63,4 +51,4 @@ app.include_router(tech_router._router)
 
 if __name__ == "__main__":
     port = PydanticEnv().port
-    uvicorn.run("main:app", host="0.0.0.0", port=port)
+    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=True)
