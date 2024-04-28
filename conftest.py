@@ -1,7 +1,14 @@
 import pytest
 
 from alembic import command
-from src.infra.repository.run_migrations_repository_infra import alembic_config
+from src.infra.repository.run_migrations_repository_infra import (
+    alembic_config,
+    run_migrations,
+)
+
+
+def pytest_configure(config):
+    run_migrations()
 
 
 def pytest_unconfigure(config):

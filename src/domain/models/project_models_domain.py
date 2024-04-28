@@ -9,7 +9,7 @@ class ProjectModelDomain(BaseModel):
     id: int
     name: str
     description: str
-    link_deploy: str
+    link_deploy: Optional[str]
     link_code: str
     images_urls: list[str]
     techs: Optional[list[str]] = None
