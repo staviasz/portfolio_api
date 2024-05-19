@@ -35,11 +35,12 @@ class RepositoryInfra(RepositoryProtocolUseCase):
             ]
 
             return response
-        except Exception:
+        except Exception as error:
             raise ExceptionCustomPresentation(
                 status_code=500,
                 type="Server Error",
                 message="Repository get all error",
+                error=error,
             )
 
     async def get_by_email(self, table_name: type[T], email: str) -> dict | None:
@@ -50,11 +51,12 @@ class RepositoryInfra(RepositoryProtocolUseCase):
                 return None
 
             return query.__dict__
-        except Exception:
+        except Exception as error:
             raise ExceptionCustomPresentation(
                 status_code=500,
                 type="Server Error",
                 message="Repository get by email error",
+                error=error,
             )
 
     async def get_by_id_instace(self, table_name: type[T], id: int) -> T:
@@ -65,11 +67,12 @@ class RepositoryInfra(RepositoryProtocolUseCase):
                 raise ValueError("Id not found")
 
             return query
-        except Exception:
+        except Exception as error:
             raise ExceptionCustomPresentation(
                 status_code=500,
                 type="Server Error",
                 message="Repository get by id error",
+                error=error,
             )
 
     async def get_by_id_dict(self, table_name: type[T], id: int) -> dict:
@@ -90,11 +93,12 @@ class RepositoryInfra(RepositoryProtocolUseCase):
         except ExceptionCustomPresentation as error:
             raise error
 
-        except Exception:
+        except Exception as error:
             raise ExceptionCustomPresentation(
                 status_code=500,
                 type="Server Error",
                 message="Repository get by id error teste",
+                error=error,
             )
 
     async def create(
@@ -110,11 +114,12 @@ class RepositoryInfra(RepositoryProtocolUseCase):
             del query.__dict__["_sa_instance_state"]
             return query.__dict__
 
-        except Exception:
+        except Exception as error:
             raise ExceptionCustomPresentation(
                 status_code=500,
                 type="Server Error",
                 message="Repository create error",
+                error=error,
             )
 
     async def create_with_related(
@@ -149,11 +154,12 @@ class RepositoryInfra(RepositoryProtocolUseCase):
             del entity.__dict__["_sa_instance_state"]
             return entity.__dict__
 
-        except Exception:
+        except Exception as error:
             raise ExceptionCustomPresentation(
                 status_code=500,
                 type="Server Error",
                 message="Repository create related error",
+                error=error,
             )
 
     async def update_with_related(
@@ -199,11 +205,12 @@ class RepositoryInfra(RepositoryProtocolUseCase):
 
             del query.__dict__["_sa_instance_state"]
             return query.__dict__
-        except Exception:
+        except Exception as error:
             raise ExceptionCustomPresentation(
                 status_code=500,
                 type="Server Error",
                 message="Repository update related error",
+                error=error,
             )
 
     async def update(self, table_name: type[T], data: dict, id: int) -> dict:
@@ -221,11 +228,12 @@ class RepositoryInfra(RepositoryProtocolUseCase):
 
             del query.__dict__["_sa_instance_state"]
             return query.__dict__
-        except Exception:
+        except Exception as error:
             raise ExceptionCustomPresentation(
                 status_code=500,
                 type="Server Error",
                 message="Repository update error",
+                error=error,
             )
 
     async def delete(self, table_name: type[T], id: int) -> dict:
@@ -243,10 +251,10 @@ class RepositoryInfra(RepositoryProtocolUseCase):
             self.session.commit()
             return response
 
-        except Exception as e:
-            print(e)
+        except Exception as error:
             raise ExceptionCustomPresentation(
                 status_code=500,
                 type="Server Error",
                 message="Repository delete error",
+                error=error,
             )

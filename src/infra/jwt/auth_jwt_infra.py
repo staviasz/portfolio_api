@@ -15,9 +15,12 @@ class AuthJwtInfra(JwtProtocolUseCase):
                 payload_dict, PydanticEnv().jwt_secret_key, algorithm="HS256"
             )
             return token
-        except Exception:
+        except Exception as error:
             raise ExceptionCustomPresentation(
-                status_code=500, type="Server Error", message="Auth encode error"
+                status_code=500,
+                type="Server Error",
+                message="Auth encode error",
+                error=error,
             )
 
     async def decode(self, token: str) -> UserModelDomain:
@@ -28,7 +31,10 @@ class AuthJwtInfra(JwtProtocolUseCase):
             user = UserModelDomain(**payload)
             return user
 
-        except Exception:
+        except Exception as error:
             raise ExceptionCustomPresentation(
-                status_code=500, type="Server Error", message="Auth decode error"
+                status_code=500,
+                type="Server Error",
+                message="Auth decode error",
+                error=error,
             )

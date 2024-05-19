@@ -41,9 +41,12 @@ class AwsInfra(AwsProtocolUseCase):
 
                 return uploads
 
-        except Exception:
+        except Exception as error:
             raise ExceptionCustomPresentation(
-                status_code=500, message="Error on upload", type="Server Error"
+                status_code=500,
+                message="Error on upload",
+                type="Server Error",
+                error=error,
             )
 
     async def update_upload(
@@ -57,9 +60,12 @@ class AwsInfra(AwsProtocolUseCase):
 
             return await self.upload(folder, file)
 
-        except Exception:
+        except Exception as error:
             raise ExceptionCustomPresentation(
-                status_code=500, message="Error on update_upload", type="Server Error"
+                status_code=500,
+                message="Error on update_upload",
+                type="Server Error",
+                error=error,
             )
 
     async def delete_upload(self, last_url_file: str | list[str]) -> None:
@@ -76,9 +82,12 @@ class AwsInfra(AwsProtocolUseCase):
             )
             return
 
-        except Exception:
+        except Exception as error:
             raise ExceptionCustomPresentation(
-                status_code=500, message="Error on delete_upload", type="Server Error"
+                status_code=500,
+                message="Error on delete_upload",
+                type="Server Error",
+                error=error,
             )
 
     def slug(self, file_name: str) -> str:
