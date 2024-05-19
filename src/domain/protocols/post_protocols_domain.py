@@ -48,10 +48,10 @@ class PostDomainProtocol(Protocol):
             elif post_id and user and method == "DELETE":
                 return await self.delete_post(post_id=post_id, user=user)
 
-            elif post_id and user and method == "GET":
+            elif post_id and method == "GET":
                 return await self.get_post(post_id=post_id)
 
-            elif user and method == "GET":
+            elif method == "GET":
                 return await self.get_all_posts(filters=filters)
 
             return HttpResponse(

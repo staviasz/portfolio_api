@@ -74,21 +74,17 @@ class ProjectRoutes:
             tags=["Project"],
             response_model=ProjectModelDomain,
         )
-        async def get_projects(
-            project_id: int, request: Request, authorization: str = Header(...)
-        ) -> Response:
+        async def get_projects(project_id: int, request: Request) -> Response:
             try:
                 new_request = HttpRequest(
                     params={"project_id": project_id},
                     headers={
-                        "Authorization": authorization.split(" ")[1],
                         "method": request.method,
                     },
                 )
                 adapt = await adapt_router(
                     request=new_request,
                     controller=make_project_controller(),
-                    middlewares={"auth": make_auth_middleware()},
                 )
                 return await adapt.adapt_json(new_request)
 
@@ -153,21 +149,14 @@ class ProjectRoutes:
         @self._router.get(
             f"{self.prefix}", tags=["Project"], response_model=ProjectModelDomain
         )
-        async def get_all_projects(request: Request, authorization: str = Header(...)):
+        async def get_all_projects(request: Request):
             try:
-
-                new_request = HttpRequest(
-                    headers={
-                        "Authorization": authorization.split(" ")[1],
-                    },
-                )
 
                 adapt = await adapt_router(
                     controller=make_project_controller(),
-                    request=new_request,
-                    middlewares={"auth": make_auth_middleware()},
+                    request=HttpRequest(),
                 )
-                return await adapt.adapt_json(new_request)
+                return await adapt.adapt_json(HttpRequest())
 
             except ExceptionCustomPresentation as error:
                 return JSONResponse(status_code=error.status_code, content=error.body)

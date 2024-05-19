@@ -20,7 +20,7 @@ class AuthJwtInfra(JwtProtocolUseCase):
                 status_code=500,
                 type="Server Error",
                 message="Auth encode error",
-                error=error,
+                error=error.args,
             )
 
     async def decode(self, token: str) -> UserModelDomain:
@@ -36,5 +36,5 @@ class AuthJwtInfra(JwtProtocolUseCase):
                 status_code=500,
                 type="Server Error",
                 message="Auth decode error",
-                error=error,
+                error=error.args,
             )

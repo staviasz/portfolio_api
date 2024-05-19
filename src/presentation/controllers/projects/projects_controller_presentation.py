@@ -93,6 +93,16 @@ class ProjectsControllerPresentation(Controller):
                 request.headers.get("method") if request and request.headers else None
             )
 
+            if (
+                (method == "POST" or method == "PUT" or method == "DELETE")
+                and not request.body
+                and not user
+            ):
+                return HttpResponse(
+                    status_code=400,
+                    body={"message": "Request body must be provided"},
+                )
+
             response = await self.use_case.execute(
                 project_id=project_id, method=method, user=user
             )

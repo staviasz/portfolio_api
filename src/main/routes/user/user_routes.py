@@ -55,20 +55,19 @@ class UserRoutes:
                 return JSONResponse(status_code=error.status_code, content=error.body)
 
         @self._router.get(
-            f"{self.prefix}/profile", tags=["Users"], response_model=UserModelDomain
+            f"{self.prefix}/{{user_id}}", tags=["Users"], response_model=UserModelDomain
         )
-        async def get_user(req: Request, authorization: str = Header(...)):
+        async def get_user(req: Request, user_id: int):
             try:
                 request = HttpRequest(
                     headers={
-                        "Authorization": authorization.split(" ")[1],
                         "method": req.method,
-                    }
+                    },
+                    params={"user_id": user_id},
                 )
                 adapt = await adapt_router(
                     request=request,
                     controller=make_user_controller(),
-                    middlewares={"auth": make_auth_middleware()},
                 )
                 return await adapt.adapt_json(request)
             except ExceptionCustomPresentation as error:
@@ -77,20 +76,14 @@ class UserRoutes:
         @self._router.get(
             f"{self.prefix}", tags=["Users"], response_model=list[UserModelDomain]
         )
-        async def get_all_user(authorization: str = Header(...)):
+        async def get_all_user():
             try:
 
-                request = HttpRequest(
-                    headers={
-                        "Authorization": authorization.split(" ")[1],
-                    }
-                )
                 adapt = await adapt_router(
-                    request=request,
+                    request=HttpRequest(),
                     controller=make_user_controller(),
-                    middlewares={"auth": make_auth_middleware()},
                 )
-                return await adapt.adapt_json(request)
+                return await adapt.adapt_json(HttpRequest())
             except ExceptionCustomPresentation as error:
                 return JSONResponse(status_code=error.status_code, content=error.body)
 

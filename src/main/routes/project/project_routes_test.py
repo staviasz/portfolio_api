@@ -57,7 +57,7 @@ class TestProjectRoutes:
         assert expect_img_url in images_body[1]
 
     async def test_get_all_projects(self):
-        response = client.get("/project", headers=token)
+        response = client.get("/project")
 
         expect_img_url = (
             "https://portifolioStaviasz.s3.us-east-005.backblazeb2.com/projects/"
@@ -79,7 +79,7 @@ class TestProjectRoutes:
         assert expect_img_url in body_img[1]
 
     async def test_get_project(self):
-        response = client.get("/project/1", headers=token)
+        response = client.get("/project/1")
 
         expect_img_url = (
             "https://portifolioStaviasz.s3.us-east-005.backblazeb2.com/projects/"

@@ -49,7 +49,7 @@ class TestPostRoutes:
         }
 
     async def test_get_post(self):
-        response = client.get("/post/1", headers=token)
+        response = client.get("/post/1")
 
         assert response.status_code == 200
         assert response.json() == {
@@ -61,7 +61,7 @@ class TestPostRoutes:
         }
 
     async def test_get_all_posts(self):
-        response = client.get("/post", headers=token)
+        response = client.get("/post")
 
         assert response.status_code == 200
         assert response.json() == [
@@ -75,7 +75,7 @@ class TestPostRoutes:
         ]
 
     async def test_get_all_posts_with_wrong_filter(self):
-        response = client.get("/post?user_id=2", headers=token)
+        response = client.get("/post?user_id=2")
 
         assert response.status_code == 200
         assert response.json() == []

@@ -1,6 +1,6 @@
 import pytest
 
-from src.use_case.implements.user.tests.setup import use_case, data_user
+from src.use_case.implements.user.tests.setup import use_case, data_user, repository
 
 
 user = data_user.copy()
@@ -13,7 +13,8 @@ del user["image_upload"]
 class TestGetUserImplementsUseCase:
 
     async def test_get_user_implements_use_case(self):
-        result = await use_case.execute(user=user, method="GET")
+        repository.get_by_id_dict.side_effect = lambda **kwargs: user
+        result = await use_case.execute(user_id=1, method="GET")
 
         del user["password"]
         assert result.status_code == 200

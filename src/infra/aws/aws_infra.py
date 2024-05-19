@@ -46,7 +46,7 @@ class AwsInfra(AwsProtocolUseCase):
                 status_code=500,
                 message="Error on upload",
                 type="Server Error",
-                error=error,
+                error=error.args,
             )
 
     async def update_upload(
@@ -65,7 +65,7 @@ class AwsInfra(AwsProtocolUseCase):
                 status_code=500,
                 message="Error on update_upload",
                 type="Server Error",
-                error=error,
+                error=error.args,
             )
 
     async def delete_upload(self, last_url_file: str | list[str]) -> None:
@@ -87,7 +87,7 @@ class AwsInfra(AwsProtocolUseCase):
                 status_code=500,
                 message="Error on delete_upload",
                 type="Server Error",
-                error=error,
+                error=error.args,
             )
 
     def slug(self, file_name: str) -> str:

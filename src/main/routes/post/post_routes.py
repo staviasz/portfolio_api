@@ -92,21 +92,16 @@ class PostRoutes:
         @self._router.get(
             f"{self.prefix}/{{post_id}}", tags=["Post"], response_model=PostDomain
         )
-        async def get_post(
-            post_id: int, request: Request, authorization: str = Header(...)
-        ) -> Response:
+        async def get_post(post_id: int, request: Request) -> Response:
             try:
                 new_request = HttpRequest(
                     headers={
-                        "Authorization": authorization.split(" ")[1],
                         "method": request.method,
                     },
                     params={"post_id": post_id},
                 )
                 adapt = await adapt_router(
-                    controller=make_post_controller(),
-                    request=new_request,
-                    middlewares={"auth": make_auth_middleware()},
+                    controller=make_post_controller(), request=new_request
                 )
 
                 return await adapt.adapt_json(request=new_request)
@@ -117,13 +112,11 @@ class PostRoutes:
         @self._router.get(f"{self.prefix}", tags=["Post"], response_model=PostDomain)
         async def get_posts(
             request: Request,
-            authorization: str = Header(...),
             user_id: Optional[int] = Query(None),
         ) -> Response:
             try:
                 new_request = HttpRequest(
                     headers={
-                        "Authorization": authorization.split(" ")[1],
                         "method": request.method,
                     },
                     query={"filters": {"user_id": user_id}} if user_id else None,
@@ -131,7 +124,6 @@ class PostRoutes:
                 adapt = await adapt_router(
                     controller=make_post_controller(),
                     request=new_request,
-                    middlewares={"auth": make_auth_middleware()},
                 )
 
                 return await adapt.adapt_json(request=new_request)

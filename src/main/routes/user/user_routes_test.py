@@ -72,7 +72,7 @@ class TestUserRoutes:
         assert new_data == body
 
     async def test_get_user(self):
-        response = client.get("/user/profile", headers=token)
+        response = client.get("/user/1")
 
         expect_img_url = (
             "https://portifolioStaviasz.s3.us-east-005.backblazeb2.com/users/"
@@ -91,7 +91,7 @@ class TestUserRoutes:
         assert except_response == body
 
     async def test_get_all_user(self):
-        response = client.get("/user", headers=token)
+        response = client.get("/user")
 
         body = response.json()
         assert isinstance(body, list)

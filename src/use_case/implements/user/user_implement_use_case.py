@@ -148,8 +148,10 @@ class UserUseCase(UserDomainProtocol):
         except ExceptionCustomPresentation as error:
             return HttpResponse(status_code=error.status_code, body=error.body)
 
-    async def get_user(self, user: dict) -> HttpResponse:
+    async def get_user(self, user_id: int) -> HttpResponse:
         try:
+            user = await self.repository.get_by_id_dict(table_name=User, id=user_id)
+            print(user)
             response = UserModelDomain(**user)
 
             return HttpResponse(status_code=200, body=response.model_dump())

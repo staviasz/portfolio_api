@@ -38,6 +38,7 @@ class LoginControllerPresentation(Controller):
 
             if isinstance(data, list):
                 return HttpResponse(status_code=422, body=data)
+            print(data)
 
             response = await self.use_case.execute(
                 LoginModelDomain(**data.model_dump())

@@ -47,10 +47,10 @@ class ProjectDomainProtocol(Protocol):
         elif project_id and user and method == "DELETE":
             return await self.delete_project(project_id=project_id)
 
-        elif project_id and user and method == "GET":
+        elif project_id and method == "GET":
             return await self.get_project(project_id=project_id)
 
-        elif user and not method:
+        elif not method:
             return await self.get_all_projects()
 
         return HttpResponse(

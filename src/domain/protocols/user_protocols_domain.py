@@ -19,7 +19,7 @@ class UserDomainProtocol(DomainProtocol, Protocol):
         self, user: dict, data_user: UserModelUpdateDomain
     ) -> HttpResponse: ...
 
-    async def get_user(self, user: dict) -> HttpResponse: ...
+    async def get_user(self, user_id: int) -> HttpResponse: ...
 
     async def get_all_users(self) -> HttpResponse: ...
 
@@ -29,6 +29,7 @@ class UserDomainProtocol(DomainProtocol, Protocol):
         self,
         data_user: T | None = None,
         user: dict | None = None,
+        user_id: int | None = None,
         method: Literal["POST", "GET", "PUT", "DELETE"] | None = None,
     ) -> HttpResponse:
 
@@ -38,8 +39,8 @@ class UserDomainProtocol(DomainProtocol, Protocol):
         elif data_user and isinstance(data_user, UserModelUpdateDomain) and user:
             return await self.edit_user(user, data_user)
 
-        elif user and method == "GET":
-            return await self.get_user(user)
+        elif user_id and method == "GET":
+            return await self.get_user(user_id)
 
         elif user and method == "DELETE":
             return await self.delete_user(user["id"])

@@ -17,7 +17,7 @@ class HasherInfra(BycryptProtocolUseCase):
                 status_code=500,
                 message="Errror in hashing password",
                 type="Error Server",
-                error=error,
+                error=error.args,
             )
 
     async def compare(self, password: str, hash_password: str) -> bool:
@@ -30,5 +30,5 @@ class HasherInfra(BycryptProtocolUseCase):
                 status_code=500,
                 message="Errror in comparing password",
                 type="Error Server",
-                error=error,
+                error=error.args,
             )

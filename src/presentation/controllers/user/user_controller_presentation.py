@@ -84,10 +84,12 @@ class UserControllerPresentation(Controller, Generic[TSchema]):
                 user = args[0]
 
             method = request.headers.get("method") if request.headers else None
+            user_id = request.params.get("user_id") if request.params else None
 
             response = await self.use_case.execute(
                 user=user,
                 method=method,
+                user_id=user_id,
             )
 
             return HttpResponse(status_code=response.status_code, body=response.body)

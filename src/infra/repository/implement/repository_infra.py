@@ -40,7 +40,7 @@ class RepositoryInfra(RepositoryProtocolUseCase):
                 status_code=500,
                 type="Server Error",
                 message="Repository get all error",
-                error=error,
+                error=error.args,
             )
 
     async def get_by_email(self, table_name: type[T], email: str) -> dict | None:
@@ -56,7 +56,7 @@ class RepositoryInfra(RepositoryProtocolUseCase):
                 status_code=500,
                 type="Server Error",
                 message="Repository get by email error",
-                error=error,
+                error=error.args,
             )
 
     async def get_by_id_instace(self, table_name: type[T], id: int) -> T:
@@ -72,7 +72,7 @@ class RepositoryInfra(RepositoryProtocolUseCase):
                 status_code=500,
                 type="Server Error",
                 message="Repository get by id error",
-                error=error,
+                error=error.args,
             )
 
     async def get_by_id_dict(self, table_name: type[T], id: int) -> dict:
@@ -98,7 +98,7 @@ class RepositoryInfra(RepositoryProtocolUseCase):
                 status_code=500,
                 type="Server Error",
                 message="Repository get by id error teste",
-                error=error,
+                error=error.args,
             )
 
     async def create(
@@ -119,7 +119,7 @@ class RepositoryInfra(RepositoryProtocolUseCase):
                 status_code=500,
                 type="Server Error",
                 message="Repository create error",
-                error=error,
+                error=error.args,
             )
 
     async def create_with_related(
@@ -159,7 +159,7 @@ class RepositoryInfra(RepositoryProtocolUseCase):
                 status_code=500,
                 type="Server Error",
                 message="Repository create related error",
-                error=error,
+                error=error.args,
             )
 
     async def update_with_related(
@@ -210,7 +210,7 @@ class RepositoryInfra(RepositoryProtocolUseCase):
                 status_code=500,
                 type="Server Error",
                 message="Repository update related error",
-                error=error,
+                error=error.args,
             )
 
     async def update(self, table_name: type[T], data: dict, id: int) -> dict:
@@ -233,7 +233,7 @@ class RepositoryInfra(RepositoryProtocolUseCase):
                 status_code=500,
                 type="Server Error",
                 message="Repository update error",
-                error=error,
+                error=error.args,
             )
 
     async def delete(self, table_name: type[T], id: int) -> dict:
@@ -256,5 +256,5 @@ class RepositoryInfra(RepositoryProtocolUseCase):
                 status_code=500,
                 type="Server Error",
                 message="Repository delete error",
-                error=error,
+                error=error.args,
             )

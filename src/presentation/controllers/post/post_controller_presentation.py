@@ -44,7 +44,11 @@ class PostControllerPresentation(Controller):
                 request.query.get("filters") if request and request.query else None
             )
 
-            if (method == "POST" or method == "PUT") and not request.body:
+            if (
+                (method == "POST" or method == "PUT" or method == "DELETE")
+                and not request.body
+                and not user
+            ):
                 return HttpResponse(
                     status_code=400,
                     body={"message": "Request body must be provided"},

@@ -32,6 +32,7 @@ class LoginRoutes:
             try:
 
                 new_request = HttpRequest(body=await request.json())
+                print(new_request)
 
                 adapt = await adapt_router(make_login_controller())
 
