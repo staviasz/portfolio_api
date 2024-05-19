@@ -12,9 +12,7 @@ env = PydanticEnv().env
 
 engine = None
 if env == "dev":
-    engine = create_engine(
-        url=PydanticEnv().database_url,
-    )
+    engine = create_engine(url=PydanticEnv().database_url, pool_size=50)
 elif env == "test":
     engine = create_engine(
         f"sqlite:///{sqlite_db_file}", connect_args={"check_same_thread": False}
